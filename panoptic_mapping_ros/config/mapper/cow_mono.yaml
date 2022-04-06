@@ -1,0 +1,132 @@
+# Cow and Lady RGBD dataset
+# General Params
+verbosity: 4
+input_from_bag: true
+use_lidar: &use_lidar false 
+use_range_image: &use_range_image true
+estimate_normal: &use_normal false
+use_threadsafe_submap_collection: false
+use_transform_caching: true
+use_tf_transforms: false
+transform_lookup_time: 0.1
+global_frame_name: world
+sensor_frame: camera_rgb_optical_frame 
+visualization_interval: -5.0
+# robot_mesh_interval: 0.2
+data_logging_interval: 0.0
+print_timing_interval: -1.0
+esdf_update_interval: -10.0
+max_input_queue_length: 1000
+ros_spinning_threads: 8
+msg_latency_s: 0.2
+
+camera: # kinect v1
+  verbosity: 1
+  width: 640  # Px
+  height: 480
+  vx: 320
+  vy: 240
+  fx: 580
+  fy: 580
+  max_range: &max_range 5.0  # m
+  min_range: &min_range 0.1
+  smooth_thre_ratio: 0.05 # m
+
+id_tracker:
+  type: single_tsdf
+  verbosity: 1
+  
+  use_lidar: *use_lidar
+  use_range_image: *use_range_image
+  use_class_layer: false
+  use_instance_classification: false
+  integration_threads: 1 # slower, but can avoid SegFault
+
+  # map allocator
+  voxel_size: 0.05
+  truncation_distance: -2
+  voxels_per_side: 16
+
+  # freespace esdf mapping
+  esdf_integrator_name: fiesta # select from voxblox, voxfield, fiesta and edt
+  esdf_fiesta_patch: true
+  esdf_fiesta_break: false
+  finer_esdf_on: true
+  fixed_band_esdf_on: false
+  occ_voxel_size_ratio: &occ_voxel_size_ratio 0.866
+  #tsdf_min_weight: &tsdf_min_weight 0.001
+  fixed_band_ratio: 2.0
+  gradient_sign: 1.0
+  esdf_max_distance_m: 2.0
+  esdf_local_offset_x: 30
+  esdf_local_offset_y: 30
+  esdf_local_offset_z: 10
+
+tsdf_integrator:  # different from those in voxblox
+  # select from class_projective, class_raycast, class_adaptive, projective, raycast, adaptive, single_projective
+  type: single_raycast
+  verbosity: 2    
+
+  use_lidar: *use_lidar   
+  use_range_image: *use_range_image
+
+  # Common
+  apply_normal_refine_freespace: *use_normal
+  curve_assumption: true
+  behind_surface_reliable_band: true
+  reliable_band_ratio: 3.0
+  reliable_normal_ratio_thre: 0.05
+  use_weight_dropoff: true
+  weight_dropoff_epsilon: -1.0 #if negative, means -k * voxel_size
+  weight_reduction: true
+  weight_reduction_exp: 2.0
+  max_weight: 10000
+
+  # Projective
+  interpolation_method: adaptive  # nearest, bilinear, adaptive
+
+  # Raycasting
+  merged_raycasting: true # use "merged" raycast or not
+  free_space_multi_threads: true # use multi-thread raycasting for the freespace submap independently
+  freespace_carving_enabled: true
+  max_ray_length_m: *max_range
+  min_ray_length_m: *min_range
+  
+  
+visualization:  
+  submaps:
+    type: single_tsdf  # submaps, single_tsdf
+    verbosity: 1
+    color_mode: color # submaps, instances, color, normals, classes, change, classification
+    visualization_mode: all  # all, active, active_only, inactive, persistent
+    submap_color_discretization: 30
+    visualize_mesh: true
+    visualize_tsdf_blocks: true
+    visualize_occ_voxels: true
+    visualize_slice: true
+    visualize_free_space_tsdf: true
+    visualize_free_space_esdf: true
+    visualize_free_space_gsdf: true
+    visualize_bounding_volumes: true
+    include_free_space: true
+    slice_height: 1.0
+    occ_voxel_size_ratio: *occ_voxel_size_ratio
+    #tsdf_min_weight: *tsdf_min_weight
+
+  planning:
+    verbosity: 1
+    visualize_slice: true
+    slice_resolution: 0.1
+    slice_height: 1.0
+  
+  tracking: # images
+    verbosity: 1
+    visualize_tracking: true
+
+# Available services:
+# rosservice call /panoptic_mapper/save_map "file_path: '/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/results/single_tsdf_run1.panmap'"
+# rosservice call /panoptic_mapper/save_esdf_map "file_path: '/path/to/run1.esdf'" 
+# rosservice call /panoptic_mapper/load_map "file_path: '/path/to/run1.panmap'" 
+# rosservice call /panoptic_mapper/save_mesh "file_path: '/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/results/multi_tsdf_equal_weight_no_normal'"
+# rosservice call /panoptic_mapper/set_visualization_mode "color_mode: 'color'"
+# double free or corruption error

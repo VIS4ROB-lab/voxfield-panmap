@@ -1,0 +1,49 @@
+# TODO: better to merge esdf map into the panmap file
+
+# cow & lady dataset
+# ground_truth_pointcloud_file: /media/yuepan/SeagateNew/1_data/cow_dataset/cow_and_lady_gt.ply
+# map_file: /media/yuepan/SeagateNew/1_data/cow_dataset/results/mono_5cm_normal_t2.panmap
+# esdf_file_path: /media/yuepan/SeagateNew/1_data/cow_dataset/results/mono_5cm_voxfield_refine_03.esdf
+
+# flat dataset
+# ground_truth_pointcloud_file: /media/yuepan/SeagateNew/1_data/flat_dataset/flat_1_gt_10000.ply
+# map_file: /media/yuepan/SeagateNew/1_data/flat_dataset/results/mono_5cm_normal.panmap
+# esdf_file_path: /media/yuepan/SeagateNew/1_data/flat_dataset/results/mono_5cm_voxfield_norefine6.esdf
+
+# mai city dataset
+# ground_truth_pointcloud_file: /media/yuepan/SeagateNew/1_data/mai_city/gt_models/merged_gt_map.ply
+# map_file: /media/yuepan/SeagateNew/1_data/mai_city/results/mono_15cm_normal_test.panmap
+# esdf_file_path: /media/yuepan/SeagateNew/1_data/mai_city/results/mono_15cm_voxfield_refine.esdf
+
+# kitti dataset seq 07
+ground_truth_pointcloud_file: /media/yuepan/SeagateNew/1_data/kitti/gt_map/merged_gt_map_kitti_07.ply
+map_file: /media/yuepan/SeagateNew/1_data/kitti/results/mono_25cm_normal_01.panmap
+esdf_file_path: /media/yuepan/SeagateNew/1_data/kitti/results/mono_25cm_voxfield_refine_01.esdf
+
+# newer college dataset
+# ground_truth_pointcloud_file: /media/yuepan/SeagateNew/1_data/NewerCollege/2020-ouster-os1-64-realsense/gt_map/part1_filtered_map.ply
+# map_file: /media/yuepan/SeagateNew/1_data/NewerCollege/results/
+# esdf_file_path: /media/yuepan/SeagateNew/1_data/NewerCollege/results/
+
+
+verbosity: 2
+trunc_dist: -2.0
+#occ_voxel_size_ratio: 0.6
+#tsdf_min_weight: 0.001
+slice_height: 0.0
+compute_coloring: false
+color_by_mesh_distance: true
+ignore_truncated_points: true
+is_single_tsdf: true
+include_all_submaps: true
+use_chamfer_dist: true
+visualize_esdf_error: true
+vis_occ_esdf_error: true
+visualize_occ_voxels: true
+visualize_free_space_submap: false
+visualize_free_space_esdf: true
+visualize_free_space_tsdf: true
+visualize_free_space_gsdf: true
+    
+
+

@@ -1,0 +1,91 @@
+<launch>
+
+<!--rosservice call /panoptic_mapper/save_map "file_path: '/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/results/single_tsdf_run1.panmap'"-->
+
+<!-- ============ Arguments ============ -->
+  <!-- General -->
+  <arg name="namespace" default="data"/> 
+  <arg name="use_rio" default="false"/>
+  <arg name="use_detectron" default="false"/>
+  <arg name="use_kitti" default="true"/>
+  <arg name="visualize" default="true"/> 
+  
+  <!-- Flat Dataset args -->
+  <!-- It's not a rosbag file, why do not use one -->
+  <!-- For other datasets, you can also provide the input likewise-->
+  <arg name="base_path" default="/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/run1"/> 
+  <arg name="play_rate" default="10"/>  <!-- Realtime factor -->
+  <arg name="wait_time" default="0"/>  <!-- s -->
+  <arg name="max_frames" default="1000"/> <!-- 90 -->
+  
+  <!-- Rio Dataset args -->
+  <arg name="data_path" default="/home/lukas/Documents/Datasets/3RScan"/> 
+  <arg name="scene_id" default="0"/> <!-- 0: 0-3, 1: 0-3, 2: 0-1 -->
+  <arg name="scan_id" default="0"/>
+  <arg name="rio_play_rate" default="20"/>  <!-- Hz -->
+
+  <!-- Use ROS Bag -->
+  <arg name="bag_speed" default="0.5"/> 
+
+  <!-- Sequence No. -->
+  <arg name='data_seq' default='01'/>
+  <!-- 00: 700 m drive, at 10 m/s in an urban-like environment, data recorded with a virtual Velodyne HDl-64.
+  01: 100 m block of the mai_city_block model, data recorded with a virtual Velodyne HDl-64.
+  02: 100 m block of the mai_city_block model, data recorded with a virtual Velodyne-like LiDAR with 320 beams. -->
+
+  <!-- Prediction method: select from gt, rangenet, etc. -->
+  <arg name='pre_method' default='gt'/> 
+
+  <!-- Semantic KITTI Dataset args-->
+  <arg name="data_path_kitti" default="/media/yuepan/SeagateNew/1_data/kitti/semantickitti_sequence$(arg data_seq)_$(arg pre_method).bag"/> 
+
+  <!-- Semantic USL Dataset args-->
+  <arg name="data_path_usl" default="/media/yuepan/SeagateNew/1_data/SemanticUSL/semanticusl_sequence12.bag"/> 
+
+  <!-- Mai City Dataset args-->
+  <arg name="data_path_maicity" default="/media/yuepan/SeagateNew/1_data/mai_city/bags/$(arg data_seq).bag"/> 
+
+  <!-- Mapper -->
+  <arg name="config" default="maicity_mono"/> <!-- maicity_mono -->
+  <arg name="shutdown_when_finished" default="false"/> 
+  
+  <!-- Save/Load maps -->
+  <arg name="load_map" default = "false"/>
+  <arg name="load_file" default = "/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/results/run1.panmap"/>
+
+
+<!-- ============ Run ============ -->
+  <!-- Play data -->
+  <!-- <arg name="wait" default="true" if="$(arg load_map)"/>
+  <include file="$(find panoptic_mapping_utils)/launch/play_flat_dataset.launch" pass_all_args="true" unless="$(arg use_rio)" />
+  <include file="$(find panoptic_mapping_utils)/launch/play_rio_dataset.launch" pass_all_args="true" if="$(arg use_rio)" />   -->
+  
+  <!-- Mapper -->
+  <!-- Outdoor LiDAR -->
+  <!-- Mai City Dataset -->
+  <node name="player" pkg="rosbag" type="play" output="screen" args=" -r $(arg bag_speed) $(arg data_path_maicity)"/>
+  
+  <node name="panoptic_mapper" pkg="panoptic_mapping_ros" type="panoptic_mapper_node" output="screen" >
+  
+    <!-- Config -->
+    <rosparam file="$(find panoptic_mapping_ros)/config/mapper/$(arg config).yaml"/>
+    
+    <!-- Input -->
+    <remap from="pointcloud" to="/velodyne_points" />
+    <!-- <remap from="color_image_in" to="$(arg namespace)/color_image"/>
+    <remap from="depth_image_in" to="$(arg namespace)/depth_image"/>
+    <remap from="segmentation_image_in" to="$(arg namespace)/segmentation_image"/>
+    <remap from="labels_in" to="$(arg namespace)/segmentation_labels"/> -->
+  </node>  
+  
+  <!-- Map loader -->
+  <!-- <node name="map_loader" pkg="panoptic_mapping_utils" type="map_loader.py" if="$(arg load_map)" output="screen">
+     <param name="path" value="$(arg load_file)" /> 
+     <param name="srv_name" value="/panoptic_mapper/load_map" /> 
+     <param name="delay" value="0.1" /> 
+  </node>   -->
+
+  <!-- RVIZ Visualization-->
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find panoptic_mapping_ros)/config/rviz/vis_maicity.rviz" output="screen" if="$(arg visualize)"/>
+
+</launch>

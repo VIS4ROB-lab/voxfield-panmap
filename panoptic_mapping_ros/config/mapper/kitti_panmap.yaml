@@ -1,0 +1,220 @@
+# KITTI real-world LiDAR dataset
+# General Params
+verbosity: 2
+input_from_bag: true
+use_lidar: &use_lidar true 
+filter_moving_objects: true
+use_panoptic_color: true # use semantic (false) or panoptic (true) color for the map visualization
+estimate_normal: &use_normal true
+use_threadsafe_submap_collection: false
+use_transform_caching: true
+use_tf_transforms: true
+transform_lookup_time: 0.1
+global_frame_name: world
+robot_frame_name: camera_color_left
+visualization_interval: -3.0
+robot_mesh_interval: 0.2
+data_logging_interval: 0.0
+print_timing_interval: -1.0
+esdf_update_interval: 0.0
+max_input_queue_length: 1000
+ros_spinning_threads: 8
+msg_latency_s: 0.3
+
+
+# if not set, then we use the "null" implementation 
+lidar: # velodyne-64
+  verbosity: 1
+  width: 1024  # Px
+  height: 64
+  fov_up: 3.0  # deg
+  fov_down: -25.0
+  max_range: &max_range 50.0  # m
+  min_range: &min_range 1.5
+  ground_min_z: -1.0 # m
+  smooth_thre_ratio: 0.1
+
+transformer:
+  verbosity: 1
+  use_tf_transforms: true
+
+submap_allocator:
+  type: semantic  # semantic
+  verbosity: 1   
+  
+  # submaps
+  voxels_per_side: &voxels_per_side 16
+  truncation_distance: -4 # negative = #vs (scale)
+  
+  # vital reconstruction parameters
+  # actually only works for multi-class submap
+  # It's better to use false and 1 as a good combination here, and set foreign_rays_clear = true
+  clear_foreign_voxels: false # if true: close the mesh of each submap by assign the foreign voxel corners the truncated distance
+  required_belonging_corners: 1 # A voxel is be regarded as valid only when $required_belonging_corners of 8 corners are belonging to the submap's id
+  
+  classification:
+    type: moving_binary_count # select from binary_count, moving_binary_count, fixed_count, variable_count and uncertainty
+  
+  # Semantic (figure out why can't we keep decreasing these values)
+  small_instance_voxel_size: 0.05
+  medium_instance_voxel_size: 0.1
+  large_instance_voxel_size: 0.3
+  background_voxel_size: 0.3
+  unknown_voxel_size: 0.3
+
+  # small_instance_voxel_size: 0.25
+  # medium_instance_voxel_size: 0.25
+  # large_instance_voxel_size: 0.25
+  # background_voxel_size: 0.25
+  # unknown_voxel_size: 0.25
+  
+freespace_allocator:
+  type: monolithic  # monolithic 
+  verbosity: 1  
+  voxels_per_side: *voxels_per_side
+  truncation_distance: -3  # negative = #vs (scale)
+  voxel_size: 0.5 
+
+  # freespace esdf mapping
+  esdf_integrator_name: voxfield # select from voxblox, voxfield, fiesta and edt
+  esdf_fiesta_patch: true
+  esdf_fiesta_break: false
+  finer_esdf_on: true
+  esdf_max_distance_m: 6.0
+  esdf_local_offset_x: 30
+  esdf_local_offset_y: 30
+  esdf_local_offset_z: 5
+
+id_tracker:
+  type: projective # select from ground_truth, projective, detectron, single_tsdf
+  verbosity: 1
+
+  use_lidar: *use_lidar  
+  
+  # Projective ID tracker
+  depth_tolerance: -3  # positive m, negative = #vs
+  tracking_metric: IoU  # IoU, overlap
+  match_acceptance_threshold: 0.08 
+  min_allocation_size: 20 # px, for submap allocation.
+  use_class_data_for_matching: true  
+  use_approximate_rendering: true # only use the vertex points (TODO: false)
+  vis_render_image: false
+
+tsdf_integrator:  # different from those in voxblox
+  # select from class_projective, class_raycast, class_adaptive, projective, raycast, adaptive, single_tsdf
+  type: class_raycast 
+  verbosity: 2
+  
+  use_lidar: *use_lidar  
+
+  # Common
+  skip_free_space_submap: true # if true, only do panoptic 3d reconstruction
+  apply_normal_refine: *use_normal # use gradient to refine tsdf (for 3d reconstruction)
+  apply_normal_refine_freespace: true # use gradient to refine esdf (for path planning)
+  curve_assumption: true
+  behind_surface_reliable_band: true
+  reliable_band_ratio: 3.0
+  reliable_normal_ratio_thre: 0.05
+  use_weight_dropoff: true
+  weight_dropoff_epsilon: -1.0 #if negative, means -k * voxel_size
+  weight_reduction: false
+  weight_reduction_exp: 1.0
+  max_weight: 10000
+
+  # Projective Integrator
+  interpolation_method: adaptive  # nearest, bilinear, adaptive
+  allocate_neighboring_blocks: true # use false if you'd like to save time
+  foreign_rays_clear: true  #only works for projective integrator, if false, then we do not allow a multi-class submap (projected pixel does not belongs to the current submap)
+  
+  # Raycast Integrator (if carving is not enabled, the integration would only done close to the surface)
+  # TODO: also implement the "fast raycast"
+  merged_raycasting: true # use "merged" raycast or not
+  only_merge_freespace: false # if "merged" raycast is select, only apply it to the free-space submap
+  free_space_multi_threads: true # use multi-thread raycasting for the freespace submap independently
+  max_ray_length_m: *max_range
+  min_ray_length_m: *min_range
+  voxel_carving_enabled: false # space carving is mainly used for getting rid of the dynamic artifacts with the cost of longer consuming time
+  freespace_carving_enabled: true
+
+  # Class Projective
+  use_binary_classification: true
+  use_instance_classification: &use_instance_classification false
+  update_only_tracked_submaps: true
+  
+map_management:
+  type: submaps
+  verbosity: 2
+  
+  # Frequencies
+  # Perform actions every n ticks (frames), set 0 to turn off.
+  prune_active_blocks_frequency: 5
+  activity_management_frequency: 1 # sometimes it cost too much time
+  change_detection_frequency: 0
+  
+  # Behavior
+  # If find candidate inactive submaps which have the bounding volume intersection and similar TSDF as the currently deactivated one, merge them or not
+  merge_deactivated_submaps_if_possible: &merge_map false # better to be true
+  # When deactivate the submap, removes those non-belonging points from the TSDF and deletes the class layer or not
+  apply_class_layer_when_deactivating_submaps: false
+  
+  activity_manager:
+    verbosity: 1
+    required_reobservations: 3 # Consecutive observations to keep new submaps.
+    deactivate_after_missed_detections: 10  # Deactivate submaps when not observed for x frames.
+    update_after_deactivation: *merge_map
+  # Done by activity manager
+  # 1. checkRequiredRedetection, if the submap is not tracked consecutive for X frames from the beginning, discard the submap
+  # 2. checkMissedDetections, if the submap is not not detected for Y consecutive frames, deactivate the submap, but it should also obey 1
+  # 3. mergeSubmapIfPossible, when one submap is deactivated, try to find another inactive submap for merging. If the merging condition is fulfilled, merge them and keep the older submap 
+
+  tsdf_registrator:
+    verbosity: 3
+    min_voxel_weight: &min_weight 0.000001
+    error_threshold: -1 # m, negative = #vs
+    match_rejection_points: 20  
+    match_rejection_percentage: 0.02
+    match_acceptance_points: 20
+    match_acceptance_percentage: 0.02
+    normalize_by_voxel_weight: true
+    
+  layer_manipulator:
+      verbosity: 3
+      use_instance_classification: *use_instance_classification
+  
+visualization:  
+  submaps:
+    type: submaps  # submaps, single_tsdf
+    verbosity: 1
+    color_mode: color # submaps, instances, color, normals, classes, change, classification (means the fusion confidence)
+    visualization_mode: all  # all, active, active_only, inactive, persistent
+    submap_color_discretization: 30 # be same as the image's
+    visualize_mesh: true
+    visualize_tsdf_blocks: true
+    visualize_occ_voxels: true
+    visualize_slice: true
+    visualize_free_space_tsdf: true
+    visualize_free_space_esdf: true
+    visualize_free_space_gsdf: true
+    visualize_ground_tsdf: false
+    visualize_bounding_volumes: true
+    include_free_space: false
+    tsdf_min_weight: *min_weight # currently not used
+    slice_height: -0.7
+  
+  planning:
+    verbosity: 1
+    visualize_slice: true
+    slice_resolution: 0.2
+    slice_height: -0.7
+  
+  tracking:
+    verbosity: 1
+    visualize_tracking: true
+
+# Available services:
+# rosservice call /panoptic_mapper/save_map "file_path: '/media/yuepan/SeagateNew/1_data/kitti/results/run1.panmap'"
+# rosservice call /panoptic_mapper/load_map "file_path: '/path/to/run1.panmap'" 
+# rosservice call /panoptic_mapper/save_mesh "file_path: '/media/yuepan/SeagateNew/1_data/kitti/results/mesh_test1'" 
+# rosservice call /panoptic_mapper/set_visualization_mode "color_mode: 'submaps'"
+# rosservice call /panoptic_mapper/set_visualization_mode "visualization_mode: 'active'"
+

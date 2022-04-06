@@ -1,0 +1,308 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Panoptic Mapper1
+      Splitter Ratio: 0.8294117450714111
+    Tree Height: 728
+  - Class: rviz/Selection
+    Name: Selection
+  - Class: rviz/Tool Properties
+    Expanded:
+      - /2D Pose Estimate1
+      - /2D Nav Goal1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.5886790156364441
+  - Class: rviz/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz/Time
+    Experimental: false
+    Name: Time
+    SyncMode: 0
+    SyncSource: Input
+Preferences:
+  PromptSaveOnExit: true
+Toolbars:
+  toolButtonStyle: 2
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz/Axes
+      Enabled: false
+      Length: 0.5
+      Name: Drone_flat
+      Radius: 0.15000000596046448
+      Reference Frame: depth_camera
+      Value: false
+    - Class: rviz/Axes
+      Enabled: false
+      Length: 0.5
+      Name: Drone_rio
+      Radius: 0.15000000596046448
+      Reference Frame: rio
+      Value: false
+    - Class: rviz/Axes
+      Enabled: false
+      Length: 1
+      Name: Origin
+      Radius: 0.05000000074505806
+      Reference Frame: <Fixed Frame>
+      Value: false
+    - Class: rviz/Marker
+      Enabled: false
+      Marker Topic: /path_visualizer/path
+      Name: Path
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: false
+    - Class: rviz/Group
+      Displays:
+        - Class: voxblox_rviz_plugin/VoxbloxMultiMesh
+          Enabled: true
+          Name: Mesh
+          Toggle Visibility All: false
+          Topic: /panoptic_mapper/visualization/submaps/mesh
+          Unreliable: false
+          Value: true
+          Visible:
+            0_SM_Kitchen_a: true
+            101_SM_Journal_c: true
+            103_SM_Windows_Windows_a: true
+            104_SM_Door_b: true
+            10_SM_Table_a: true
+            11_SM_Cup_b: true
+            12_SM_Table_Decor_a: true
+            138_SM_Picture_g: true
+            140_SM_Bed_table_a: true
+            143_SM_Bed_lamp_a: true
+            144_SM_Stack_of_Books_f: true
+            145_SM_Bed_table_b: true
+            146_SM_Bed_lamp_b: true
+            153_SM_TV_Wall_a: true
+            163_SM_Windows_Windows_a: true
+            165_SM_Bed_lamp_b: true
+            172_SM_TV_Wall_a: true
+            175_SM_Stack_of_Books_e: true
+            178_SM_Stack_of_Books_a: true
+            179_SM_Stack_of_Books_b: true
+            181_SM_Digital_Clock_a: true
+            185_SM_Decor_a: true
+            189_SM_Decor_b: true
+            190_SM_Journal_a: true
+            191_SM_Plant_a: true
+            193_SM_Floor_a: true
+            194_SM_Walls_a: true
+            195_SM_Ceiling_a: true
+            196_SM_Door_b: true
+            198_SM_Bed_table_a: true
+            199_SM_Bed_a: true
+            1_SM_Floor_a: true
+            200_SM_Stack_of_Books_f: true
+            201_SM_Picture_e: true
+            28_SM_Dimmer_a: true
+            29_SM_Tumblr_a: true
+            2_SM_Walls_a: true
+            3_SM_Door_a: true
+            40_SM_Chair_b: true
+            41_SM_Picture_b: true
+            50_SM_Bed_a: true
+            54_SM_Floor_a: true
+            61_SM_TV_Wall_a: true
+            64_SM_Coffee_table_a: true
+            65_SM_TV_a: true
+            6_SM_Ceiling_a: true
+            70_SM_Sofa_a: true
+            80_SM_Picture_a: true
+            8_SM_Chair_a: true
+            93_SM_Cup_a: true
+            94_SM_Floor_Lamp_a: true
+            99_SM_Journal_b: true
+            9_SM_Wall_Clock_a: true
+            Value: true
+        - Alpha: 0.30000001192092896
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: FreeSpaceTsdf
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 5
+          Size (m): 0.009999999776482582
+          Style: Points
+          Topic: /panoptic_mapper/visualization/submaps/free_space_tsdf
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /panoptic_mapper/visualization/submaps/bounding_volumes
+          Name: BoundingVolumes
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /panoptic_mapper/visualization/submaps/tsdf_blocks
+          Name: TsdfBlocks
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/Marker
+          Enabled: false
+          Marker Topic: /panoptic_mapper/visualization/planning/planning_slice
+          Name: PlanningSlice
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/Group
+          Displays:
+            - Class: rviz/Image
+              Enabled: true
+              Image Topic: /panoptic_mapper/visualization/tracking/color
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Color
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: true
+            - Class: rviz/Image
+              Enabled: true
+              Image Topic: /panoptic_mapper/visualization/tracking/input
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Input
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: true
+            - Class: rviz/Image
+              Enabled: false
+              Image Topic: /panoptic_mapper/visualization/tracking/rendered
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Rendered
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: false
+            - Class: rviz/Image
+              Enabled: true
+              Image Topic: /panoptic_mapper/visualization/tracking/tracked
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Tracked
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: true
+          Enabled: true
+          Name: Tracking
+      Enabled: true
+      Name: Panoptic Mapper
+  Enabled: true
+  Global Options:
+    Background Color: 255; 255; 255
+    Default Light: true
+    Fixed Frame: world
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/FocusCamera
+    - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+      Theta std deviation: 0.2617993950843811
+      Topic: /initialpose
+      X std deviation: 0.5
+      Y std deviation: 0.5
+    - Class: rviz/SetGoal
+      Topic: /move_base_simple/goal
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 13.093103408813477
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: -1.741017460823059
+        Y: -0.913213312625885
+        Z: -1.5133700370788574
+      Focal Shape Fixed Size: false
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 1.054796814918518
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 4.707221984863281
+    Saved: ~
+Window Geometry:
+  Color:
+    collapsed: false
+  Displays:
+    collapsed: false
+  Height: 1025
+  Hide Left Dock: false
+  Hide Right Dock: false
+  Input:
+    collapsed: false
+  QMainWindow State: 000000ff00000000fd00000004000000000000015600000363fc0200000011fb0000001200530065006c0065006300740069006f006e000000003d0000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb0000000a0049006e00700075007403000001b3000001d8000000f5000000cdfc0000003d00000363000000c900fffffffa000000010100000002fb0000000e004e006f0072006d0061006c007302000001c80000025800000280000001e0fb000000100044006900730070006c0061007900730100000000000001560000015600fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d00610067006500000001de000000a60000000000000000fb0000000a0049006d0061006700650000000246000000d00000000000000000fb0000001e0055006e0072006500660069006e0064006500200049006e007000750074020000003b0000025800000280000001e0fb0000000a0049006d00610067006500000002f1000000ad0000000000000000fb0000000a0049006d00610067006501000002b50000006f0000000000000000fb0000000a0049006d006100670065010000032a000000740000000000000000fb0000000a0043006f006c006f007203000001b20000010c000000f6000000cbfb0000001000520065006e0064006500720065006402000003bf000001c800000156000000aa000000010000010f00000361fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d00000361000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000020000073d000000eefc0100000006fb0000000e0054007200610063006b0065006403000001b1000002a7000000f8000000d1fb0000000a0043006f006c006f007200000000000000013c0000000000000000fb0000000a0049006e00700075007400000001420000012b0000000000000000fb0000001000520065006e006400650072006500640000000273000000770000000000000000fb0000000e0054007200610063006b0065006400000002f0000004550000000000000000fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073d0000003efc0100000002fb0000000800540069006d006501000000000000073d000002eb00fffffffb0000000800540069006d00650100000000000004500000000000000000000005e10000036300000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Rendered:
+    collapsed: false
+  Selection:
+    collapsed: false
+  Time:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Tracked:
+    collapsed: false
+  Views:
+    collapsed: false
+  Width: 1853
+  X: 67
+  Y: 27

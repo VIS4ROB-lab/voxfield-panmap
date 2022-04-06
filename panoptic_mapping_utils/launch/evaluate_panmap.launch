@@ -1,0 +1,11 @@
+<launch>
+<!-- ============ Evaluations ============ -->
+  <arg name="visualize" default="true"/>
+  
+  <node name="evaluator" pkg="panoptic_mapping_utils" type="single_map_evaluation" output="screen" required="true">
+    <rosparam file="$(find panoptic_mapping_utils)/config/evaluate_config.yaml"/>
+  </node>
+  
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find panoptic_mapping_utils)/config/evaluate_panmap_cow.rviz" if="$(arg visualize)"/>
+  
+</launch>

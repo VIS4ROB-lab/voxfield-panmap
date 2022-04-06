@@ -1,0 +1,669 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Panoptic Mapper1
+        - /LiDAR point cloud1
+      Splitter Ratio: 0.5270018577575684
+    Tree Height: 363
+  - Class: rviz/Selection
+    Name: Selection
+  - Class: rviz/Tool Properties
+    Expanded:
+      - /2D Pose Estimate1
+      - /2D Nav Goal1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.5886790156364441
+  - Class: rviz/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz/Time
+    Experimental: false
+    Name: Time
+    SyncMode: 0
+    SyncSource: ""
+Preferences:
+  PromptSaveOnExit: true
+Toolbars:
+  toolButtonStyle: 2
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz/Axes
+      Enabled: false
+      Length: 2
+      Name: Robot
+      Radius: 0.25
+      Reference Frame: vehicle
+      Value: false
+    - Class: rviz/Axes
+      Enabled: false
+      Length: 1
+      Name: Origin
+      Radius: 0.15000000596046448
+      Reference Frame: <Fixed Frame>
+      Value: false
+    - Class: rviz/TF
+      Enabled: false
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        {}
+      Update Interval: 0
+      Value: false
+    - Class: rviz/Marker
+      Enabled: false
+      Marker Topic: /path_visualizer/path
+      Name: Path
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: false
+    - Class: rviz/Group
+      Displays:
+        - Class: voxblox_rviz_plugin/VoxbloxMultiMesh
+          Enabled: true
+          Name: Mesh
+          Toggle Visibility All: false
+          Topic: /panoptic_mapper/visualization/submaps/mesh
+          Unreliable: false
+          Value: true
+          Visible:
+            1020_Car: true
+            1029_Other_Object: true
+            1036_Car: true
+            1042_OtherVehicle: true
+            1044_Other_Object: true
+            1050_Trunck: true
+            1114_Terrain: true
+            1131_Terrain: true
+            1150_Terrain: true
+            1170_Other_Object: true
+            1182_Car: true
+            1189_Terrain: true
+            1191_Other_Object: true
+            1193_Car: true
+            1206_Car: true
+            1217_Other_Object: true
+            1228_Other_Object: true
+            1237_Other_Object: true
+            1246_OtherVehicle: true
+            1257_Car: true
+            1265_Other_Object: true
+            1282_Pole: true
+            129_Other_Object: true
+            1313_Other_Object: true
+            131_Structure: true
+            1320_Pole: true
+            132_Truck: true
+            1330_Car: true
+            1331_Other_Object: true
+            1360_Car: true
+            1362_Other_Object: true
+            1378_Pole: true
+            1397_Car: true
+            1407_Car: true
+            1408_Pole: true
+            1429_Pole: true
+            1442_Pole: true
+            1458_Pole: true
+            1460_Car: true
+            1485_Pole: true
+            1497_OtherVehicle: true
+            1498_Other_Object: true
+            1521_Car: true
+            1529_Pole: true
+            1559_Pole: true
+            1570_Car: true
+            1581_Other_Object: true
+            1582_Pole: true
+            158_Traffic_sign: true
+            1598_Pole: true
+            1605_Other_Object: true
+            1618_Pole: true
+            1619_Other_Object: true
+            1627_Terrain: true
+            1641_Car: true
+            1646_Terrain: true
+            1647_Car: true
+            1668_Bicycle: true
+            1674_Car: true
+            167_Parking: true
+            1691_Car: true
+            1698_Car: true
+            1699_Other_Object: true
+            1704_Trunck: true
+            1709_Other_Object: true
+            1711_Other_Object: true
+            1740_Terrain: true
+            1749_Trunck: true
+            175_Pole: true
+            1761_Car: true
+            1762_Trunck: true
+            1763_Terrain: true
+            1775_Trunck: true
+            1776_Car: true
+            1787_Structure: true
+            1789_Other_Object: true
+            1795_Trunck: true
+            1803_Car: true
+            1804_Other_Object: true
+            1806_Car: true
+            180_Car: true
+            181_Car: true
+            1828_Terrain: true
+            1829_Other_Object: true
+            182_Car: true
+            1831_Pole: true
+            183_Structure: true
+            1846_Terrain: true
+            1884_Car: true
+            1886_OtherVehicle: true
+            1918_Terrain: true
+            1926_Car: true
+            1939_Car: true
+            194_Car: true
+            195_Pole: true
+            196_Fence: true
+            1979_Pole: true
+            2005_Structure: true
+            2025_Terrain: true
+            2026_Fence: true
+            2042_Trunck: true
+            2044_Terrain: true
+            2050_Pole: true
+            2062_Pole: true
+            2066_Parking: true
+            2074_Car: true
+            2075_Pole: true
+            2080_Car: true
+            2090_Car: true
+            2093_Pole: true
+            2101_Other_Object: true
+            2115_Terrain: true
+            2128_Pole: true
+            2129_Traffic_sign: true
+            2136_Terrain: true
+            213_Car: true
+            2144_Trunck: true
+            2166_Parking: true
+            2175_Trunck: true
+            2185_Other_Object: true
+            2187_Car: true
+            2190_Pole: true
+            2197_Traffic_sign: true
+            2210_Pole: true
+            2212_Car: true
+            2213_Trunck: true
+            2214_Car: true
+            2223_Other_Object: true
+            223_Car: true
+            2241_Motorcycle: true
+            225_Car: true
+            2271_Pole: true
+            2275_Traffic_sign: true
+            2286_Person: true
+            2287_Person: true
+            2290_Trunck: true
+            2302_Pole: true
+            2305_Trunck: true
+            2323_Pole: true
+            2348_Trunck: true
+            2361_Car: true
+            239_Car: true
+            2440_Terrain: true
+            2442_Traffic_sign: true
+            2461_Car: true
+            2463_Structure: true
+            2482_Car: true
+            2484_Trunck: true
+            2486_Pole: true
+            2501_Other_Object: true
+            2502_Car: true
+            2505_Terrain: true
+            2516_Structure: true
+            252_Car: true
+            2530_Other_Object: true
+            2533_Parking: true
+            2545_Trunck: true
+            2559_Other_Object: true
+            2573_Pole: true
+            2589_Other_Object: true
+            2605_Pole: true
+            2609_Parking: true
+            2630_Pole: true
+            2656_Traffic_sign: true
+            265_Terrain: true
+            2666_Other_Object: true
+            2667_Car: true
+            2671_Pole: true
+            2695_Car: true
+            2705_Structure: true
+            2706_Motorcycle: true
+            2720_Other_Object: true
+            2721_Terrain: true
+            275_Pole: true
+            2786_Car: true
+            2788_Terrain: true
+            2816_Structure: true
+            2831_Structure: true
+            2850_Structure: true
+            2866_Structure: true
+            2869_Car: true
+            2890_Other_Object: true
+            2895_Terrain: true
+            2901_Other_Object: true
+            2904_Trunck: true
+            2908_Pole: true
+            2915_Car: true
+            2916_Terrain: true
+            2917_Other_Object: true
+            291_Car: true
+            2921_Pole: true
+            2922_Car: true
+            2932_OtherVehicle: true
+            2934_Other_Object: true
+            2960_Terrain: true
+            2966_Car: true
+            2968_Terrain: true
+            2972_Other_Object: true
+            2977_Structure: true
+            2985_Other_Object: true
+            3000_Other_Object: true
+            3001_Terrain: true
+            3004_Car: true
+            3006_Trunck: true
+            3008_Trunck: true
+            3032_Terrain: true
+            3040_Car: true
+            3051_Structure: true
+            3068_Car: true
+            3075_Car: true
+            3085_Other_Object: true
+            3091_Structure: true
+            3103_Terrain: true
+            3104_Sidewalk: true
+            3109_Ground: true
+            3110_Trunck: true
+            3114_Car: true
+            3115_Terrain: true
+            3116_Other_Object: true
+            3121_Car: true
+            3122_Terrain: true
+            3129_Pole: true
+            312_Structure: true
+            3132_Terrain: true
+            315_Car: true
+            324_Other_Object: true
+            344_Other_Object: true
+            347_Car: true
+            353_Trunck: true
+            361_Pole: true
+            367_Structure: true
+            372_Trunck: true
+            382_Trunck: true
+            391_Other_Object: true
+            392_Pole: true
+            39_Car: true
+            402_Trunck: true
+            404_Pole: true
+            40_Terrain: true
+            41_Fence: true
+            427_Car: true
+            42_Vegetation: true
+            437_Parking: true
+            43_Car: true
+            45_Road: true
+            460_Car: true
+            46_Sidewalk: true
+            47_Other_Object: true
+            48_Trunck: true
+            499_Trunck: true
+            49_Ground: true
+            501_Parking: true
+            51_OtherVehicle: true
+            52_Building: true
+            551_Pole: true
+            581_Parking: true
+            598_Pole: true
+            635_Other_Object: true
+            674_Traffic_sign: true
+            70_Structure: true
+            711_Car: true
+            713_Terrain: true
+            740_Other_Object: true
+            771_Car: true
+            773_Trunck: true
+            846_Other_Object: true
+            85_Car: true
+            862_Other_Object: true
+            885_Other_Object: true
+            892_Car: true
+            922_Car: true
+            926_Car: true
+            939_Car: true
+            941_Other_Object: true
+            947_Trunck: true
+            955_Other_Object: true
+            979_OtherVehicle: true
+            981_Terrain: true
+            Value: true
+        - Alpha: 0.5
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: FreeSpaceTsdf
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 5
+          Size (m): 0.6000000238418579
+          Style: Flat Squares
+          Topic: /panoptic_mapper/visualization/submaps/free_space_tsdf
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Alpha: 0.5
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: FreeSpaceEsdf
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 5
+          Size (m): 0.6000000238418579
+          Style: Flat Squares
+          Topic: /panoptic_mapper/visualization/submaps/free_space_esdf
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Alpha: 0.5
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: FreeSpaceGsdf
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.6000000238418579
+          Style: Flat Squares
+          Topic: /panoptic_mapper/visualization/submaps/free_space_gsdf
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /panoptic_mapper/visualization/submaps/bounding_volumes
+          Name: BoundingVolumes
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /panoptic_mapper/visualization/submaps/tsdf_blocks
+          Name: TsdfBlocks
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /panoptic_mapper/visualization/submaps/occ_voxels
+          Name: OccVoxels
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/Marker
+          Enabled: false
+          Marker Topic: /panoptic_mapper/visualization/planning/planning_slice
+          Name: PlanningSlice
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/Group
+          Displays:
+            - Class: rviz/Image
+              Enabled: false
+              Image Topic: /panoptic_mapper/visualization/tracking/color
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Semantic
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: false
+            - Class: rviz/Image
+              Enabled: true
+              Image Topic: /panoptic_mapper/visualization/tracking/input
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Panoptic
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: true
+            - Class: rviz/Image
+              Enabled: true
+              Image Topic: /panoptic_mapper/visualization/tracking/tracked
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Tracked SubmapID
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: true
+            - Class: rviz/Image
+              Enabled: true
+              Image Topic: /panoptic_mapper/visualization/tracking/depth
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Depth
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: true
+            - Class: rviz/Image
+              Enabled: true
+              Image Topic: /panoptic_mapper/visualization/tracking/normal
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Normal
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: true
+            - Class: rviz/Image
+              Enabled: false
+              Image Topic: /panoptic_mapper/visualization/tracking/rendered
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Rendered SubmapID
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: false
+          Enabled: false
+          Name: Tracking
+      Enabled: true
+      Name: Panoptic Mapper
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: LiDAR point cloud
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.05000000074505806
+      Style: Spheres
+      Topic: /velodyne_points_filtered
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /Robot_mesh
+      Name: Robot car
+      Namespaces:
+        "": true
+      Queue Size: 100
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 255; 255; 255
+    Default Light: true
+    Fixed Frame: world
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/FocusCamera
+    - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+      Theta std deviation: 0.2617993950843811
+      Topic: /initialpose
+      X std deviation: 0.5
+      Y std deviation: 0.5
+    - Class: rviz/SetGoal
+      Topic: /move_base_simple/goal
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 257.3280334472656
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 117.08562469482422
+        Y: -102.9283447265625
+        Z: -57.713523864746094
+      Focal Shape Fixed Size: false
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.5947972536087036
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 0.873737096786499
+    Saved: ~
+Window Geometry:
+  Depth:
+    collapsed: false
+  Displays:
+    collapsed: true
+  Height: 1025
+  Hide Left Dock: true
+  Hide Right Dock: false
+  Normal:
+    collapsed: false
+  Panoptic:
+    collapsed: false
+  QMainWindow State: 000000ff00000000fd000000040000000000000156000003a7fc0200000014fb0000001200530065006c0065006300740069006f006e000000003d0000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afc0000003d000003a70000000000fffffffa000000000100000003fb0000000a0043006f006c006f0072030000021b000003260000055600000044fb0000000e004e006f0072006d0061006c007302000001c80000025800000280000001e0fb000000100044006900730070006c0061007900730000000000000001560000015600fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d00610067006502000001b20000023d00000280000001e0fb0000000a0049006d0061006700650000000246000000d00000000000000000fb0000001e0055006e0072006500660069006e0064006500200049006e007000750074020000003b0000025800000280000001e0fb0000000a0049006d00610067006500000002f1000000ad0000000000000000fb0000000a0049006d00610067006501000002b50000006f0000000000000000fb0000000a0049006d006100670065010000032a000000740000000000000000fb0000001000520065006e00640065007200650064020000021f0000025800000280000001e0fb0000000a0049006d00610067006503000001b100000237000005c000000055fb0000000c004e006f0072006d0061006c02000001b10000025800000280000001e0fb0000002200520065006e006400650072006500640020005300750062006d00610070004900440000000263000000460000001600fffffffb0000001000530065006d0061006e00740069006302000000e20000025800000280000001e0fb0000001000500061006e006f007000740069006302000001b10000025800000280000001e0000000010000010f0000034bfc0200000004fb0000000a0044006500700074006802000001b10000025800000280000001e0fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003d00000361000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000020000073d000000eefc0100000006fb0000000e0054007200610063006b00650064030000021b000003800000055600000043fb0000000a0043006f006c006f007200000000000000013c0000000000000000fb0000000a0049006e007000750074030000021b000003520000055500000044fb0000001000520065006e006400650072006500640000000273000000770000000000000000fb0000000e0054007200610063006b0065006400000002f0000004550000000000000000fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073d00000039fc0100000003fb000000200054007200610063006b006500640020005300750062006d006100700049004402000001b00000025800000280000001e0fc000000000000073d0000000000fffffffa000000000200000002fb0000000a0049006e007000750074030000021b000003530000055700000043fb0000000800540069006d006500000003a60000003e0000003900fffffffb0000000800540069006d006501000000000000045000000000000000000000073d000003a700000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Rendered SubmapID:
+    collapsed: false
+  Selection:
+    collapsed: false
+  Semantic:
+    collapsed: false
+  Time:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Tracked SubmapID:
+    collapsed: false
+  Views:
+    collapsed: false
+  Width: 1853
+  X: 67
+  Y: 27
