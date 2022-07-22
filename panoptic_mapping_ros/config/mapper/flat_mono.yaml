@@ -4,16 +4,16 @@ verbosity: 4
 input_from_bag: false
 use_lidar: &use_lidar false 
 use_range_image: &use_range_image true
-estimate_normal: &use_normal false
+estimate_normal: &use_normal true
 use_threadsafe_submap_collection: false
 use_transform_caching: true
 use_tf_transforms: true
-transform_lookup_time: 0.8
+transform_lookup_time: 0.1
 global_frame_name: world
 robot_frame_name: depth_camera
-visualization_interval: -1.0
 robot_mesh_interval: 0.2
-robot_mesh_scale: 1.5
+robot_mesh_scale: 2.0
+visualization_interval: -1.0
 data_logging_interval: 0.0
 print_timing_interval: -1.0
 esdf_update_interval: -5.0
@@ -81,7 +81,7 @@ tsdf_integrator:  # different from those in voxblox
   reliable_band_ratio: 4.0
   reliable_normal_ratio_thre: 0.05
   use_weight_dropoff: true
-  weight_dropoff_epsilon: -1.0 #if negative, means -k * voxel_size
+  weight_dropoff_epsilon: -1.0 # if negative, means -k * voxel_size
   weight_reduction: true
   weight_reduction_exp: 2.0
   max_weight: 10000

@@ -1,7 +1,5 @@
 <launch>
 
-<!--rosservice call /panoptic_mapper/save_map "file_path: '/media/yuepan/SeagateNew/1_data/cow_dataset/results/run_xxx.panmap'"-->
-
 <!-- ============ Arguments ============ -->
   <!-- General -->
   <arg name="visualize" default="true"/> 
@@ -10,6 +8,7 @@
   <arg name="bag_speed" default="0.5"/> 
 
   <!-- Cow and lady Dataset Path-->
+  <!-- Download the dataset from: https://projects.asl.ethz.ch/datasets/doku.php?id=iros2017 -->
   <arg name="data_path_cow" default="/media/yuepan/SeagateNew/1_data/thesis_dataset/cow_lady_dataset.bag"/> 
   <arg name="robot_mesh_file" default="$(find panoptic_mapping_ros)/config/model/x500.dae"/>
 

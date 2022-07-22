@@ -3,15 +3,14 @@
 verbosity: 2
 input_from_bag: true
 use_lidar: &use_lidar true 
-filter_moving_objects: true
-use_panoptic_color: true # use semantic (false) or panoptic (true) color for the map visualization
-use_range_image: &use_range_image true
+use_panoptic_color: false # use semantic (false) or panoptic (true) color for the map visualization
 estimate_normal: &use_normal true
 use_threadsafe_submap_collection: false
 use_transform_caching: true
 use_tf_transforms: true
 transform_lookup_time: 0.1
 global_frame_name: world
+robot_frame_name: camera_color_left
 visualization_interval: -5.0
 data_logging_interval: 0.0
 print_timing_interval: -1.0

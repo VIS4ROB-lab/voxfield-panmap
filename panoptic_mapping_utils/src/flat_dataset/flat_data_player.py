@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-# dirty fix, may try to switch to python3
-
+# updated
 import os
 import json
 import csv

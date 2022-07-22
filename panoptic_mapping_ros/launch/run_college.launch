@@ -1,43 +1,22 @@
 <launch>
 
-<!--rosservice call /panoptic_mapper/save_map "file_path: '/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/results/single_tsdf_run1.panmap'"-->
-
 <!-- ============ Arguments ============ -->
   <!-- General -->
   <arg name="namespace" default="data"/> 
-  <arg name="use_rio" default="false"/>
-  <arg name="use_detectron" default="false"/>
-  <arg name="use_kitti" default="true"/>
   <arg name="visualize" default="true"/> 
   
-  <!-- Flat Dataset args -->
-  <!-- It's not a rosbag file, why do not use one -->
-  <!-- For other datasets, you can also provide the input likewise-->
-  <arg name="base_path" default="/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/run1"/> 
-  <arg name="play_rate" default="10"/>  <!-- Realtime factor -->
-  <arg name="wait_time" default="0"/>  <!-- s -->
-  <arg name="max_frames" default="1000"/> <!-- 90 -->
-  
-  <!-- Rio Dataset args -->
-  <arg name="data_path" default="/home/lukas/Documents/Datasets/3RScan"/> 
-  <arg name="scene_id" default="0"/> <!-- 0: 0-3, 1: 0-3, 2: 0-1 -->
-  <arg name="scan_id" default="0"/>
-  <arg name="rio_play_rate" default="20"/>  <!-- Hz -->
-
   <!-- Use ROS Bag -->
   <arg name="bag_speed" default="0.5"/> 
 
   <!-- Sequence No. -->
   <arg name='data_seq' default='02'/>
-  <!-- 00: 700 m drive, at 10 m/s in an urban-like environment, data recorded with a virtual Velodyne HDl-64.
-  01: 100 m block of the mai_city_block model, data recorded with a virtual Velodyne HDl-64.
-  02: 100 m block of the mai_city_block model, data recorded with a virtual Velodyne-like LiDAR with 320 beams. -->
 
-  <!-- Newer College Dataset args-->
+  <!-- Download the dataset here: https://ori-drs.github.io/newer-college-dataset/ -->
+  <!-- Newer College Dataset args--> 
   <arg name="data_path_college" default="/media/yuepan/SeagateNew/1_data/NewerCollege/2020-ouster-os1-64-realsense/long_experiments/2020_long_filtered_$(arg data_seq).bag"/> 
 
   <!-- Mapper -->
-  <arg name="config" default="college_mono"/> <!-- maicity_mono -->
+  <arg name="config" default="college_mono"/> 
   <arg name="shutdown_when_finished" default="false"/> 
 
 

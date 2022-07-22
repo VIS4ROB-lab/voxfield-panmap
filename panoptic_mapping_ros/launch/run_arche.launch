@@ -8,7 +8,8 @@
   <!-- Use ROS Bag -->
   <arg name="bag_speed" default="0.5"/> 
 
-  <!-- Cow and lady Dataset Path-->
+  <!-- Arche Dataset Path-->
+  <!-- Download the dataset from: http://robotics.ethz.ch/~asl-datasets/2020_voxgraph_arche/ -->
   <arg name="data_path_arche" default="/media/yuepan/SeagateNew/1_data/thesis_dataset/arche_flight1_2ms_indoor-outdoor-figure-8.bag"/> 
   <arg name="robot_mesh_file" default="$(find panoptic_mapping_ros)/config/model/hummingbird.mesh"/>
 

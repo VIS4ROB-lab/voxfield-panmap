@@ -7,8 +7,12 @@
   <!-- Use ROS Bag -->
   <arg name="bag_speed" default="0.8"/> 
 
+  <!-- Sequence No. -->
+  <arg name='data_seq' default='12'/>
+
+  <!-- Please download the Semantic USL dataset from: https://unmannedlab.github.io/semanticusl -->
   <!-- Semantic USL Dataset args-->
-  <arg name="data_path_usl" default="/media/yuepan/SeagateNew/1_data/SemanticUSL/semanticusl_sequence12.bag"/> 
+  <arg name="data_path_usl" default="/media/yuepan/SeagateNew/1_data/SemanticUSL/semanticusl_sequence$(arg data_seq).bag"/> 
 
   <!-- Mapper -->
   <arg name="config" default="usl_panmap"/> <!-- usl_panmap, usl_mono, rio_groundtruth, rio_detectron, single_tsdf, kitti_groundtruth, usl_groundtruth -->

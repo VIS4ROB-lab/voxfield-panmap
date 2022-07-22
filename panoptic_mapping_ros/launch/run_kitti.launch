@@ -5,65 +5,35 @@
 <!-- ============ Arguments ============ -->
   <!-- General -->
   <arg name="namespace" default="data"/> 
-  <arg name="use_rio" default="false"/>
-  <arg name="use_detectron" default="false"/>
-  <arg name="use_kitti" default="true"/>
   <arg name="visualize" default="true"/> 
 
   <!-- Robot model path -->
   <arg name="robot_mesh_file" default="$(find panoptic_mapping_ros)/config/model/car.dae"/> 
-
-  <!-- Flat Dataset args -->
-  <!-- It's not a rosbag file, why do not use one -->
-  <!-- For other datasets, you can also provide the input likewise-->
-  <arg name="base_path" default="/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/run1"/> 
-  <arg name="play_rate" default="10"/>  <!-- Realtime factor -->
-  <arg name="wait_time" default="0"/>  <!-- s -->
-  <arg name="max_frames" default="1000"/> <!-- 90 -->
   
-  <!-- Rio Dataset args -->
-  <arg name="data_path" default="/home/lukas/Documents/Datasets/3RScan"/> 
-  <arg name="scene_id" default="0"/> <!-- 0: 0-3, 1: 0-3, 2: 0-1 -->
-  <arg name="scan_id" default="0"/>
-  <arg name="rio_play_rate" default="20"/>  <!-- Hz -->
-
   <!-- Use ROS Bag -->
   <arg name="bag_speed" default="1.0"/> 
 
   <!-- Sequence No. -->
   <arg name='data_seq' default='06'/>
 
-  <!-- Prediction method: select from gt, rangenet, etc. -->
+  <!-- Panoptic prediction method: select from gt, rangenet, etc. -->
   <arg name='pre_method' default='gt'/> 
 
   <!-- Semantic KITTI Dataset args-->
-  <arg name="data_path_kitti" default="/media/yuepan/SeagateNew/1_data/kitti/semantickitti_sequence$(arg data_seq)_$(arg pre_method).bag"/> 
-
-  <!-- Semantic USL Dataset args-->
-  <arg name="data_path_usl" default="/media/yuepan/SeagateNew/1_data/SemanticUSL/semanticusl_sequence12.bag"/> 
-  
+  <!-- Download the dataset from: http://www.semantic-kitti.org/ -->
+  <arg name="data_path_kitti" default="/media/yuepan/SeagateNew/1_data/kitti/semantickitti_sequence$(arg data_seq)_$(arg pre_method).bag"/>   
 
   <!-- Mapper -->
-  <arg name="config" default="kitti_panmap"/> <!-- kitti_panmap, kitti_mono -->
+  <arg name="config" default="kitti_panmap"/> <!-- kitti_panmap (the multi-resolution mapping), kitti_mono --> 
   <arg name="shutdown_when_finished" default="false"/> 
-  
-  <!-- Save/Load maps -->
-  <arg name="load_map" default = "false"/>
-  <arg name="load_file" default = "/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/results/run1.panmap"/>
 
 
 <!-- ============ Run ============ -->
-  <!-- Play data -->
-  <!-- <arg name="wait" default="true" if="$(arg load_map)"/>
-  <include file="$(find panoptic_mapping_utils)/launch/play_flat_dataset.launch" pass_all_args="true" unless="$(arg use_rio)" />
-  <include file="$(find panoptic_mapping_utils)/launch/play_rio_dataset.launch" pass_all_args="true" if="$(arg use_rio)" />   -->
   
   <!-- Mapper -->
   <!-- Outdoor LiDAR -->
   <!-- Semantic KITTI -->
   <node name="player" pkg="rosbag" type="play" output="screen" args=" -r $(arg bag_speed) $(arg data_path_kitti) --clock"/>
-  <!-- Semantic USL -->
-  <!-- <node name="player" pkg="rosbag" type="play" output="screen" args=" -r $(arg bag_speed) $(arg data_path_usl)"/> -->
   
   <node name="panoptic_mapper" pkg="panoptic_mapping_ros" type="panoptic_mapper_node" output="screen" >
   
@@ -75,18 +45,7 @@
     <!-- <remap from="pointcloud" to="/velodyne_points_filtered" /> -->
     <!-- For other sequences in KITTI -->
     <remap from="pointcloud" to="/velodyne_points" /> 
-    <!-- <remap from="color_image_in" to="$(arg namespace)/color_image"/>
-    <remap from="depth_image_in" to="$(arg namespace)/depth_image"/>
-    <remap from="segmentation_image_in" to="$(arg namespace)/segmentation_image"/>
-    <remap from="labels_in" to="$(arg namespace)/segmentation_labels"/> -->
   </node>  
-  
-  <!-- Map loader -->
-  <!-- <node name="map_loader" pkg="panoptic_mapping_utils" type="map_loader.py" if="$(arg load_map)" output="screen">
-     <param name="path" value="$(arg load_file)" /> 
-     <param name="srv_name" value="/panoptic_mapper/load_map" /> 
-     <param name="delay" value="0.1" /> 
-  </node>   -->
 
   <!-- RVIZ Visualization-->
   <node type="rviz" name="rviz" pkg="rviz" args="-d $(find panoptic_mapping_ros)/config/rviz/vis_kitti.rviz" output="screen" if="$(arg visualize)"/>

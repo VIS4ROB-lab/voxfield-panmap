@@ -1,36 +1,30 @@
 <launch>
-
 <!-- ============ Arguments ============ -->
   <!-- General -->
   <arg name="namespace" default="data"/> 
-  <arg name="use_rio" default="false"/>
-  <arg name="use_detectron" default="false"/> 
-  <!-- <arg name="use_detectron" default="true"/>  -->
-  <arg name="use_kitti" default="false"/>
   <arg name="visualize" default="true"/> 
+  
+  <!-- use the rio dataset or not -->
+  <arg name="use_rio" default="false"/>
+
+  <!-- panoptic prediction by detectron or ground truth-->
+  <arg name="use_detectron" default="false"/>  
   
   <!-- Robot model path -->
   <arg name="robot_mesh_file" default="$(find panoptic_mapping_ros)/config/model/camera.dae"/> 
 
   <!-- Flat Dataset args -->
-  <!-- It's not a rosbag file, why do not use one -->
-  <!-- For other datasets, you can also provide the input likewise-->
+  <!-- Please download the dataset from: https://projects.asl.ethz.ch/datasets/doku.php?id=panoptic_mapping-->
   <arg name="base_path" default="/media/yuepan/SeagateNew/1_data/flat_dataset/run1"/> 
   <arg name="play_rate" default="2"/>  <!-- Realtime factor (how many frame per second) -->
   <arg name="wait_time" default="1"/>  <!-- s -->
   <arg name="max_frames" default="1000"/> <!-- 90 -->
-  
-  <!-- Rio Dataset args -->
-  <arg name="data_path" default="/home/lukas/Documents/Datasets/3RScan"/> 
-  <arg name="scene_id" default="0"/> <!-- 0: 0-3, 1: 0-3, 2: 0-1 -->
-  <arg name="scan_id" default="0"/>
-  <arg name="rio_play_rate" default="20"/>  <!-- Hz -->
     
   <!-- Mapper -->
-  <arg name="config" default="flat_mono"/> <!-- flat_panmap, flat_mono -->
+  <arg name="config" default="flat_mono"/> <!-- flat_panmap (the multi-resolution mapping), flat_mono -->
   <arg name="shutdown_when_finished" default="false"/> 
   
-  <!-- Save/Load maps -->
+  <!-- Save/Load maps for change detection -->
   <!-- Not used  -->
   <arg name="load_map" default = "false"/>
   <arg name="load_file" default = "/media/yuepan/SeagateNew/1_data/flat_dataset/results/run1.panmap"/>
@@ -40,7 +34,7 @@
   <!-- Play data -->
   <arg name="wait" default="true" if="$(arg load_map)"/>
   <include file="$(find panoptic_mapping_utils)/launch/play_flat_dataset.launch" pass_all_args="true" unless="$(arg use_rio)" />
-  <include file="$(find panoptic_mapping_utils)/launch/play_rio_dataset.launch" pass_all_args="true" if="$(arg use_rio)" />  
+  <include file="$(find panoptic_mapping_utils)/launch/play_rio_dataset.launch" pass_all_args="true" if="$(arg use_rio)" /> 
   
   <!-- Mapper -->
   <node name="panoptic_mapper" pkg="panoptic_mapping_ros" type="panoptic_mapper_node" output="screen" >
@@ -67,5 +61,3 @@
   <node type="rviz" name="rviz" pkg="rviz" args="-d $(find panoptic_mapping_ros)/config/rviz/vis_flat.rviz" output="screen" if="$(arg visualize)"/>
 
 </launch>
-
-<!--rosservice call /panoptic_mapper/save_map "file_path: '/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/results/single_tsdf_run1.panmap'"-->

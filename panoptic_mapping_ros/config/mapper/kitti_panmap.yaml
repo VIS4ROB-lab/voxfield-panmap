@@ -14,6 +14,7 @@ global_frame_name: world
 robot_frame_name: camera_color_left
 visualization_interval: -3.0
 robot_mesh_interval: 0.2
+robot_mesh_scale: 0.025
 data_logging_interval: 0.0
 print_timing_interval: -1.0
 esdf_update_interval: 0.0
