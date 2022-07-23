@@ -1,22 +1,27 @@
-# Panmap
+# Voxfield Panmap
 Multi-resolution **pan**optic volumetric **map**ing based on [**panoptic_mapping**](https://github.com/ethz-asl/panoptic_mapping) using [**Voxfield**](https://github.com/VIS4ROB-lab/voxfield) as its mapping backbone. Please check our Voxfield paper for more details.
 
 ## Paper and Video 
 [**1-min demo video**](https://www.youtube.com/watch?v=QbH1aT3zAvs&feature=youtu.be) | [paper]()
 
 ## Installation
-It's the same as the original panmap. Please check the instruction [here](https://github.com/ethz-asl/panoptic_mapping).
+It's the same as the original panmap. Please check the instructions from [here](https://github.com/ethz-asl/panoptic_mapping).
+
+Build the repository by:
+```
+catkin build panoptic_mapping_utils
+```
 
 ## Example Usage
 
-Configure the parameters in ```./panoptic_mapping_ros/config/mapper/```.
+Configure the parameters in the ```.yaml``` files in ```./panoptic_mapping_ros/config/mapper/```.
 
 And then launch the mapper by:
 ```
 roslaunch panoptic_mapping_ros run_[xxx_dataset].launch
 ```
 
-Our Voxfield Panmap support both the RGB-D and LiDAR input and provide some examples on datasets including ASL Flat, Cow and Lady, (Semantic) KITTI, Semantic USL, MaiCity, Newer College, etc.
+Our Voxfield Panmap supports both the RGB-D and LiDAR input and provides some example experiments on datasets including ASL Flat, Cow and Lady, (Semantic) KITTI, Semantic USL, MaiCity, Newer College, etc.
 
 
 ## Citation

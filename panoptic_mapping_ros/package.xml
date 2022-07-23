@@ -1,11 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>panoptic_mapping_ros</name>
-  <version>0.0.0</version>
-  <description>Panoptic mapping for long term scene understanding and consistency. </description>
+  <version>0.1.0</version>
+  <description>Multi-resolution Panoptic mapping for long term scene understanding and consistency based on Voxfield.</description>
   
   <author email="schmluk@mavt.ethz.ch">Lukas Schmid</author>
+  <author email="yuepan@ethz.ch">Yue Pan</author>
   <maintainer email="schmluk@mavt.ethz.ch">Lukas Schmid</maintainer>
+  <maintainer email="yuepan@ethz.ch">Lukas Schmid</maintainer>
 
   <license>BSD</license>
 

@@ -1,4 +1,4 @@
-# KITTI real-world LiDAR dataset
+# Semantic USL real-world LiDAR dataset
 # General Params
 verbosity: 2
 input_from_bag: true
@@ -208,9 +208,8 @@ visualization:
     visualize_tracking: true
 
 # Available services:
-# rosservice call /panoptic_mapper/save_map "file_path: '/media/yuepan/SeagateNew/1_data/kitti/results/run1.panmap'"
-# rosservice call /panoptic_mapper/load_map "file_path: '/path/to/run1.panmap'" 
-# rosservice call /panoptic_mapper/save_mesh "file_path: '/media/yuepan/SeagateNew/1_data/kitti/results/mesh_test1'" 
-# rosservice call /panoptic_mapper/set_visualization_mode "color_mode: 'submaps'"
-# rosservice call /panoptic_mapper/set_visualization_mode "visualization_mode: 'active'"
+# rosservice call /panoptic_mapper/save_map "file_path: '/path/to/xxx.panmap'"
+# rosservice call /panoptic_mapper/save_esdf_map "file_path: '/path/to/xxx..esdf'" 
+# rosservice call /panoptic_mapper/save_mesh "file_path: '/path/to/xxx'" # get ply
+# rosservice call /panoptic_mapper/set_visualization_mode "color_mode: 'color'"
 

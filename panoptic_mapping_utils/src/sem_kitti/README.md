@@ -1,5 +1,7 @@
 # semantickitti2bag
 
+please refer to the github repository: https://github.com/amslabtech/semantickitti2bag
+
 "semantickitti2bag" contains helpful python programs to convert SemanticKITTI dataset to rosbag file.
 
  * Link to original [KITTI Odometry dataset](http://www.cvlibs.net/datasets/kitti/eval_odometry.php)

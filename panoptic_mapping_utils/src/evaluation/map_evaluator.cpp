@@ -338,13 +338,11 @@ std::string MapEvaluator::computeReconstructionError(
   return ss.str();
 }
 
-// TODO(py): add the ESDF evaluation function (should be almost the same as TSDF one)
-
-// Now only work for panmap, add the interface for vblox
+// TODO(py): only work for panmap format, add the interface for voxblox format
 // The mesh reconstruction error
 std::string MapEvaluator::computeMeshError(const EvaluationRequest& request) {
 
-  if (use_voxblox_) {
+  if (use_voxblox_) { // use voxblox format
     // MeshIntegratorConfig mesh_config;
     // mesh_layer_.reset(new MeshLayer(tsdf_layer_->block_size()));
     // mesh_integrator_.reset(new MeshIntegrator<TsdfVoxel>(
@@ -360,7 +358,7 @@ std::string MapEvaluator::computeMeshError(const EvaluationRequest& request) {
     // marker_array.markers[0].header.frame_id = frame_id_;
     // fillMarkerWithMesh(mesh_layer_, color_mode_, &marker_array.markers[0]);
     // mesh_pub_.publish(marker_array);
-    LOG(WARNING)<<"currently do not support voxblox tsdf map";
+    LOG(WARNING)<<"currently do not support voxblox format tsdf map";
     return "Nan";
   }
   

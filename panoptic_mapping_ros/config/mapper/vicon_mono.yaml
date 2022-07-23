@@ -63,7 +63,7 @@ id_tracker:
   esdf_local_offset_z: 10
 
 tsdf_integrator:  # different from those in voxblox
-  # select from class_projective, class_raycast, class_adaptive, projective, raycast, adaptive, single_projective
+  # select from class_projective, class_raycast, class_adaptive, projective, raycast, adaptive, single_projective, single_raycast and single_adaptive
   type: single_raycast
   verbosity: 2    
 
@@ -120,9 +120,7 @@ visualization:
     visualize_tracking: true
 
 # Available services:
-# rosservice call /panoptic_mapper/save_map "file_path: '/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/results/single_tsdf_run1.panmap'"
-# rosservice call /panoptic_mapper/save_esdf_map "file_path: '/path/to/run1.esdf'" 
-# rosservice call /panoptic_mapper/load_map "file_path: '/path/to/run1.panmap'" 
-# rosservice call /panoptic_mapper/save_mesh "file_path: '/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/results/multi_tsdf_equal_weight_no_normal'"
+# rosservice call /panoptic_mapper/save_map "file_path: '/path/to/xxx.panmap'"
+# rosservice call /panoptic_mapper/save_esdf_map "file_path: '/path/to/xxx..esdf'" 
+# rosservice call /panoptic_mapper/save_mesh "file_path: '/path/to/xxx'" # get ply
 # rosservice call /panoptic_mapper/set_visualization_mode "color_mode: 'color'"
-# double free or corruption error

@@ -1,3 +1,4 @@
+# Flat synthetic RGBD dataset
 # General Params
 verbosity: 3
 use_threadsafe_submap_collection: true
@@ -134,3 +135,11 @@ visualization:
   tracking:
     verbosity: 1
     visualize_tracking: true
+
+
+# Available services:
+# rosservice call /panoptic_mapper/save_map "file_path: '/path/to/xxx.panmap'"
+# rosservice call /panoptic_mapper/save_esdf_map "file_path: '/path/to/xxx..esdf'" 
+# rosservice call /panoptic_mapper/save_mesh "file_path: '/path/to/xxx'" # get ply
+# rosservice call /panoptic_mapper/set_visualization_mode "color_mode: 'color'"
+# rosservice call /panoptic_mapper/set_visualization_mode "visualization_mode: 'active'"

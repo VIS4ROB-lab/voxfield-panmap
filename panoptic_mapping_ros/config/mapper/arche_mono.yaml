@@ -125,10 +125,9 @@ visualization:
     visualize_tracking: true
 
 # Available services:
-# rosservice call /panoptic_mapper/save_map "file_path: '/media/yuepan/SeagateNew/1_data/mai_city/results/run1.panmap'"
-# rosservice call /panoptic_mapper/save_esdf_map "file_path: '/media/yuepan/SeagateNew/1_data/mai_city/results/run1.esdf'" 
-# rosservice call /panoptic_mapper/load_map "file_path: '/path/to/run1.panmap'" 
-# rosservice call /panoptic_mapper/save_mesh "file_path: '/media/yuepan/SeagateNew/1_data/mai_city/results/mesh_test1.ply'" 
-# rosservice call /panoptic_mapper/set_visualization_mode "color_mode: 'submaps'"
+# rosservice call /panoptic_mapper/save_map "file_path: '/path/to/xxx.panmap'"
+# rosservice call /panoptic_mapper/save_esdf_map "file_path: '/path/to/xxx..esdf'" 
+# rosservice call /panoptic_mapper/save_mesh "file_path: '/path/to/xxx'" # get ply
+# rosservice call /panoptic_mapper/set_visualization_mode "color_mode: 'color'"
 # rosservice call /panoptic_mapper/set_visualization_mode "visualization_mode: 'active'"
 

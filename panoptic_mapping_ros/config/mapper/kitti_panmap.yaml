@@ -110,8 +110,8 @@ tsdf_integrator:  # different from those in voxblox
 
   # Common
   skip_free_space_submap: true # if true, only do panoptic 3d reconstruction
-  apply_normal_refine: *use_normal # use gradient to refine tsdf (for 3d reconstruction)
-  apply_normal_refine_freespace: true # use gradient to refine esdf (for path planning)
+  apply_normal_refine: *use_normal # use gradient to refine tsdf (for 3d reconstruction), Voxfield non-projective fusion
+  apply_normal_refine_freespace: true # use gradient to refine esdf (for path planning),  Voxfield non-projective fusion
   curve_assumption: true
   behind_surface_reliable_band: true
   reliable_band_ratio: 3.0

@@ -71,7 +71,7 @@ tsdf_integrator:  # different from those in voxblox
   use_range_image: *use_range_image
 
   # Common
-  apply_normal_refine_freespace: *use_normal
+  apply_normal_refine_freespace: *use_normal # use Voxfield non-projective fusion on not
   curve_assumption: true
   behind_surface_reliable_band: true
   reliable_band_ratio: 3.0
@@ -124,9 +124,8 @@ visualization:
     visualize_tracking: true
 
 # Available services:
-# rosservice call /panoptic_mapper/save_map "file_path: '/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/results/single_tsdf_run1.panmap'"
-# rosservice call /panoptic_mapper/save_esdf_map "file_path: '/path/to/run1.esdf'" 
-# rosservice call /panoptic_mapper/load_map "file_path: '/path/to/run1.panmap'" 
-# rosservice call /panoptic_mapper/save_mesh "file_path: '/media/yuepan/SeagateNew/1_data/thesis_dataset/flat_dataset/results/multi_tsdf_equal_weight_no_normal'"
+# rosservice call /panoptic_mapper/save_map "file_path: '/path/to/xxx.panmap'"
+# rosservice call /panoptic_mapper/save_esdf_map "file_path: '/path/to/xxx..esdf'" 
+# rosservice call /panoptic_mapper/save_mesh "file_path: '/path/to/xxx'" # get ply
 # rosservice call /panoptic_mapper/set_visualization_mode "color_mode: 'color'"
-# double free or corruption error
+# rosservice call /panoptic_mapper/set_visualization_mode "visualization_mode: 'active'"
