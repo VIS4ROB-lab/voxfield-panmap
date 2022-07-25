@@ -19,7 +19,7 @@ data_logging_interval: 0.0
 print_timing_interval: -1.0
 esdf_update_interval: 0.0
 max_input_queue_length: 1000
-ros_spinning_threads: 8
+ros_spinning_threads: 16
 msg_latency_s: 0.3
 
 
@@ -58,10 +58,10 @@ submap_allocator:
   
   # Semantic (figure out why can't we keep decreasing these values)
   small_instance_voxel_size: 0.05
-  medium_instance_voxel_size: 0.1
-  large_instance_voxel_size: 0.3
-  background_voxel_size: 0.3
-  unknown_voxel_size: 0.3
+  medium_instance_voxel_size: 0.08
+  large_instance_voxel_size: 0.2
+  background_voxel_size: 0.25
+  unknown_voxel_size: 0.2
 
   # small_instance_voxel_size: 0.25
   # medium_instance_voxel_size: 0.25

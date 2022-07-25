@@ -11,10 +11,10 @@
   <arg name="robot_mesh_file" default="$(find panoptic_mapping_ros)/config/model/car.dae"/> 
   
   <!-- Use ROS Bag -->
-  <arg name="bag_speed" default="1.0"/> 
+  <arg name="bag_speed" default="0.5"/> 
 
   <!-- Sequence No. -->
-  <arg name='data_seq' default='06'/>
+  <arg name='data_seq' default='07'/>
 
   <!-- Panoptic prediction method: select from gt, rangenet, etc. -->
   <arg name='pre_method' default='gt'/> 
@@ -42,9 +42,9 @@
     <rosparam file="$(find panoptic_mapping_ros)/config/calib/kitti_calib.yaml"/>
     <param name="robot_mesh_file" value="$(arg robot_mesh_file)"/>
     <!-- Input -->
-    <!-- <remap from="pointcloud" to="/velodyne_points_filtered" /> -->
+    <remap from="pointcloud" to="/velodyne_points_filtered" /> 
     <!-- For other sequences in KITTI -->
-    <remap from="pointcloud" to="/velodyne_points" /> 
+    <!-- <remap from="pointcloud" to="/velodyne_points" />  -->
   </node>  
 
   <!-- RVIZ Visualization-->

@@ -4,6 +4,12 @@ Multi-resolution **pan**optic volumetric **map**ing based on [**panoptic_mapping
 ## Paper and Video 
 [**1-min demo video**](https://www.youtube.com/watch?v=QbH1aT3zAvs&feature=youtu.be) | [paper]()
 
+
+
+<img src="./assets/multi_res_panmap_kitti.gif"  />
+
+
+
 ## Installation
 It's the same as the original panmap. Please check the instructions from [here](https://github.com/ethz-asl/panoptic_mapping).
 
@@ -22,6 +28,18 @@ roslaunch panoptic_mapping_ros run_[xxx_dataset].launch
 ```
 
 Our Voxfield Panmap supports both the RGB-D and LiDAR input and provides some example experiments on datasets including ASL Flat, Cow and Lady, (Semantic) KITTI, Semantic USL, MaiCity, Newer College, etc.
+
+## Demo on outdoor LiDAR datasets
+
+<img src="./assets/voxfield_panmap_example_kitti_01.gif"  />
+
+
+
+<img src="./assets/voxfield_panmap_example_kitti_09.gif"  />
+
+<img src="./assets/voxfield_panmap_example_kitti_05.gif"  />
+
+<img src="./assets/voxfield_panmap_example_usl_12.gif"  />
 
 
 ## Citation
