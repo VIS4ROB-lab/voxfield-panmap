@@ -2,7 +2,7 @@
 Multi-resolution **pan**optic volumetric **map**ing based on [**panoptic_mapping**](https://github.com/ethz-asl/panoptic_mapping) using [**Voxfield**](https://github.com/VIS4ROB-lab/voxfield) as its mapping backbone. Please check our Voxfield paper for more details.
 
 ## Paper and Video 
-[**1-min demo video**](https://www.youtube.com/watch?v=QbH1aT3zAvs&feature=youtu.be) | [paper]()
+[**1-min demo video**](https://youtu.be/sPNzTOLqb2I) | [**paper**](https://www.research-collection.ethz.ch/handle/20.500.11850/560719)
 
 
 
