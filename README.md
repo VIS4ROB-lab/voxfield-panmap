@@ -1,14 +1,10 @@
 # Voxfield Panmap
-Multi-resolution **pan**optic volumetric **map**ing based on [**panoptic_mapping**](https://github.com/ethz-asl/panoptic_mapping) using [**Voxfield**](https://github.com/VIS4ROB-lab/voxfield) as its mapping backbone. Please check our Voxfield paper for more details.
+Multi-resolution **pan**optic volumetric **map**ing based on [**panoptic_mapping**](https://github.com/ethz-asl/panoptic_mapping) using [**Voxfield**](https://github.com/VIS4ROB-lab/voxfield) as its mapping backbone. Please check our [Voxfield paper](https://www.ipb.uni-bonn.de/wp-content/papercite-data/pdf/pan2022iros.pdf) for more details.
 
 ## Paper and Video 
-[**1-min demo video**](https://youtu.be/sPNzTOLqb2I) | [**paper**](https://www.research-collection.ethz.ch/handle/20.500.11850/560719)
-
-
+[**1-min demo video**](https://youtu.be/sPNzTOLqb2I) | [**7-min presentation**](https://www.youtube.com/watch?v=4HB4RXChrbg&t=3s) | [**paper**](https://www.research-collection.ethz.ch/handle/20.500.11850/560719)
 
 <img src="./assets/multi_res_panmap_kitti.gif"  />
-
-
 
 ## Installation
 It's the same as the original panmap. Please check the instructions from [here](https://github.com/ethz-asl/panoptic_mapping).
@@ -29,11 +25,11 @@ roslaunch panoptic_mapping_ros run_[xxx_dataset].launch
 
 Our Voxfield Panmap supports both the RGB-D and LiDAR input and provides some example experiments on datasets including ASL Flat, Cow and Lady, (Semantic) KITTI, Semantic USL, MaiCity, Newer College, etc.
 
+Here, we provide the link to the exmaple rosbag for [Semantic KITTI](https://uni-bonn.sciebo.de/s/zzyTqXqymCA8vAR) (2.9GB) and [Semantic USL](https://uni-bonn.sciebo.de/s/v6k4Asxj7JsrHG8) (0.9GB) dataset for testing.
+
 ## Demo on outdoor LiDAR datasets
 
 <img src="./assets/voxfield_panmap_example_kitti_01.gif"  />
-
-
 
 <img src="./assets/voxfield_panmap_example_kitti_09.gif"  />
 
