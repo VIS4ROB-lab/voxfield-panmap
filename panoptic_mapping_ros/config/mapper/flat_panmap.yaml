@@ -1,13 +1,13 @@
 # Flat synthetic RGBD dataset
 # General Params
 verbosity: 4
-input_from_bag: false
+input_point_cloud: false
 use_lidar: &use_lidar false 
 use_range_image: &use_range_image true
 estimate_normal: &use_normal true
 use_threadsafe_submap_collection: false
 use_transform_caching: true
-use_tf_transforms: true
+use_tf_transforms: false
 transform_lookup_time: 0.1
 global_frame_name: world
 robot_frame_name: depth_camera
@@ -54,11 +54,11 @@ submap_allocator:
     type: moving_binary_count
   
   # Semantic
-  small_instance_voxel_size: 0.07
-  medium_instance_voxel_size: 0.1
-  large_instance_voxel_size: 0.12
-  background_voxel_size: 0.15
-  unknown_voxel_size: 0.05
+  small_instance_voxel_size: 0.03
+  medium_instance_voxel_size: 0.05
+  large_instance_voxel_size: 0.07
+  background_voxel_size: 0.07
+  unknown_voxel_size: 0.1
   
 freespace_allocator:
   type: monolithic  # monolithic
@@ -103,8 +103,8 @@ tsdf_integrator:  # different from those in voxblox
   skip_free_space_submap: true # if true, only do panoptic 3d reconstruction
   curve_assumption: true
   behind_surface_reliable_band: true
-  apply_normal_refine: *use_normal               # use Voxfield non-projective fusion on not (for each submap)
-  apply_normal_refine_freespace: *use_normal     # use Voxfield non-projective fusion on not
+  apply_normal_refine: *use_normal               # use Voxfield non-projective fusion or not (for each submap)
+  apply_normal_refine_freespace: *use_normal     # use Voxfield non-projective fusion or not
   reliable_band_ratio: 2.0
   reliable_normal_ratio_thre: 0.2
   use_weight_dropoff: true

@@ -18,14 +18,15 @@ import sensor_msgs.point_cloud2 as pcl2
 from geometry_msgs.msg import TransformStamped, TwistStamped, Transform, PoseStamped
 from nav_msgs.msg import Odometry
 
-bag_base_path = "/media/yuepan/SeagateNew/1_data/NewerCollege/2020-ouster-os1-64-realsense/long_experiments"
-bag_file_name = "2020_long_filtered_07.bag"
+bag_base_path = "/media/yuepan/DATA/1_data/newer_college/02/rosbag/"
+bag_file_name = "rooster_2020-03-10-11-45-12_3.bag"
+# some times you need to rosbag reindex the bag
 
 bag_file_path = os.path.join(bag_base_path, bag_file_name)
 
 ## https://ori-drs.github.io/newer-college-dataset/stereo-cam/platform-stereo/
 # in base frame [Note: The base frame is defined to be coincident with the left camera frame; however, it follows the robotic frame (x-forward, y-left, z-up).]
-pose_csv_filename = "registered_poses.csv"
+pose_csv_filename = "poses_refine.csv"
 pose_csv_path = os.path.join(bag_base_path, pose_csv_filename)
 
 pose_csv_file = open(pose_csv_path)
@@ -43,7 +44,7 @@ pose_csv_file.close()
 pose_data = np.array(rows)
 #print(pose_data)
 
-compression = rosbag.Compression.NONE
+# compression = rosbag.Compression.NONE
 #bag = rosbag.Bag(bag_file_path)
 bag = rosbag.Bag(bag_file_path, 'a')
 
@@ -76,6 +77,10 @@ T_bc = np.array([[ 0., 0., 1., 0.],
                  [ 0., -1., 0., 0.],
                  [ 0., 0., 0., 1.]])
 
+T_bo = T_bc @ T_ci @ T_io
+
+# print(T_bo)
+
 for pose_data_single in pose_data:
     tf_dy_msg = TFMessage()
     tf_dy_transform = TransformStamped()
@@ -97,12 +102,20 @@ for pose_data_single in pose_data:
 
     dy_tf = Transform()
 
-    T_wb = tf.transformations.quaternion_matrix(pose_data_single[5:9])
-    T_wb[0:3,3] = pose_data_single[2:5]
+    # current robot pose (body to world)
+    T_wb=np.eye(4)
+    T_wb[0,:] = pose_data_single[2:6] # directly get the transformation matrix
+    T_wb[1,:] = pose_data_single[6:10] # directly get the transformation matrix
+    T_wb[2,:] = pose_data_single[10:14] # directly get the transformation matrix
+    # T_wb = tf.transformations.quaternion_matrix(pose_data_single[5:9])
+    # T_wb[0:3,3] = pose_data_single[2:5]
 
-    T_wc = np.matmul(T_wb, T_bc)
+    # T_wc = np.matmul(T_wb, T_bc)
 
-    T_wo = np.matmul(np.matmul(T_wc, T_ci), T_io) # lidar in world frame
+    # T_wo = np.matmul(np.matmul(T_wc, T_ci), T_io) # lidar in world frame
+
+    # T_wo = T_wb @ T_bo # this is commented, but should be on
+    T_wo = T_wb
 
     # T_wi = T_wc # lidar imu in world frame
     # T_wo = np.matmul(T_wi, T_oi) # lidar in world frame

@@ -141,6 +141,9 @@ class SubmapCollection {
    */
   static std::string checkMapFileExtension(const std::string& file);
 
+  // vector of the ids of the submaps that are deactivated in current frame (not safe, TODO)
+  std::vector<int> deactivated_submap_ids; 
+
  private:
   // IDs are managed within a submap collection.
   SubmapIDManager submap_id_manager_;

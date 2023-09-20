@@ -24,13 +24,12 @@ class ActivityManager {
                                       // x consecutive frames after allocation.
 
     // Deactivation.
-    int deactivate_after_missed_detections =
-        0;  // Deactivate submaps when not observed for x frames. Use 0 to
-            // ignore.
+    int deactivate_after_missed_detections =  0;
+    // Deactivate submaps when not observed for x frames. Use 0 to ignore.
     
     bool update_after_deactivation = true;
 
-    Config() { setConfigName("ActivityManager"); }
+    Config() {setConfigName("ActivityManager"); }
 
    protected:
     void setupParamsAndPrinting() override;
@@ -45,7 +44,7 @@ class ActivityManager {
 
  private:
   bool checkRequiredRedetection(Submap* submap);
-  void checkMissedDetections(Submap* submap);
+  bool checkMissedDetections(Submap* submap);
 
  private:
   const Config config_;

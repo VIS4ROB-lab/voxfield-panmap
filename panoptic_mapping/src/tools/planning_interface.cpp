@@ -16,7 +16,7 @@ PlanningInterface::PlanningInterface(
 
 bool PlanningInterface::isObserved(const Point& position,
                                    bool include_inactive_maps) const {
-  Timer timer("planning_interface/is_observed");
+  // Timer timer("planning_interface/is_observed");
   // TODO(schmluk): Update this to latest convetions.
   for (const Submap& submap : *submaps_) {
     if (include_inactive_maps || submap.isActive()) {
@@ -38,7 +38,7 @@ bool PlanningInterface::isObserved(const Point& position,
 
 PlanningInterface::VoxelState PlanningInterface::getVoxelState(
     const Point& position) const {
-  Timer timer("planning_interface/get_voxel_state");
+  //Timer timer("planning_interface/get_voxel_state");
   bool is_known_free = false;
   bool is_expected_free = false;
   bool is_expected_occupied = false;
@@ -120,7 +120,7 @@ PlanningInterface::VoxelState PlanningInterface::getVoxelState(
 bool PlanningInterface::getDistance(const Point& position, float* distance,
                                     bool consider_change_state,
                                     bool include_free_space) const {
-  Timer timer("planning_interface/get_distance");
+  //Timer timer("planning_interface/get_distance");
   // Get the Tsdf distance. Return whether the point was observed.
   CHECK_NOTNULL(distance);
   constexpr float max = std::numeric_limits<float>::max();

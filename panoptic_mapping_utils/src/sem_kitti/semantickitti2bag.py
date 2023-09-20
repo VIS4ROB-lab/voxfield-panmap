@@ -6,11 +6,12 @@ from numpy.linalg import inv
 import tf
 import tf2_ros
 import os
+from tqdm import tqdm
 import cv2
 from cv_bridge import CvBridge
 import rospy
 import rosbag
-import progressbar
+# import progressbar
 from tf2_msgs.msg import TFMessage
 from datetime import datetime
 from std_msgs.msg import Header
@@ -27,7 +28,8 @@ class SemanticKitti_Raw:
     """Load and parse raw data into a usable format"""
 
     def __init__(self, dataset_path, sequence_number, scanlabel_bool, **kwargs):
-        self.data_path = os.path.join(dataset_path, 'dataset', 'sequences', sequence_number)
+        # self.data_path = os.path.join(dataset_path, 'dataset', 'sequences', sequence_number) # don't need an additional dataset term
+        self.data_path = os.path.join(dataset_path, 'sequences', sequence_number)
 
         self.frames = kwargs.get('frames', None)
 
@@ -102,21 +104,24 @@ def inv_t(transform):
 
     return transform_inv
 
-def save_velo_data_with_label(bag, kitti, velo_frame_id, velo_topic, bridge):
+def save_velo_data_with_label(bag, kitti, velo_frame_id, velo_topic, bridge, use_rangenet_pred = False):
     print("Exporting Velodyne and Label data")
     
     velo_data_dir = os.path.join(kitti.data_path, 'velodyne')
     velo_filenames = sorted(os.listdir(velo_data_dir))
 
-    label_data_dir = os.path.join(kitti.data_path, 'labels')
+    if use_rangenet_pred:
+        label_data_dir = os.path.join(kitti.data_path, 'rangenet_predictions') # or use the rangenet++'s prediction
+    else:
+        label_data_dir = os.path.join(kitti.data_path, 'labels') # use the gt labels from semantic KITTI
     label_filenames = sorted(os.listdir(label_data_dir))
 
     datatimes = kitti.timestamps
 
     iterable = zip(datatimes, velo_filenames, label_filenames)
-    bar = progressbar.ProgressBar()
+    # bar = progressbar.ProgressBar()
 
-    for dt, veloname, labelname in bar(iterable):
+    for dt, veloname, labelname in tqdm(iterable):
         if dt is None:
             continue
 
@@ -124,9 +129,11 @@ def save_velo_data_with_label(bag, kitti, velo_frame_id, velo_topic, bridge):
         label_filename = os.path.join(label_data_dir, labelname)
 
         veloscan = (np.fromfile(velo_filename, dtype=np.float32)).reshape(-1, 4)
-        labelscan = (np.fromfile(label_filename, dtype=np.int32)).reshape(-1,1)
+        labelscan = (np.fromfile(label_filename, dtype=np.uint32)).reshape(-1,1)
         
         labeldata = utils.LabelDataConverter(labelscan)
+
+        labelscan = labelscan.flatten()
 
         #normaldatafine = estimate_normal(veloscan)
         
@@ -136,6 +143,7 @@ def save_velo_data_with_label(bag, kitti, velo_frame_id, velo_topic, bridge):
         for t in range(len(labeldata.rgb_id)):
             # point_label = [veloscan[t][0], veloscan[t][1], veloscan[t][2], veloscan[t][3], labeldata.rgb_id[t], labeldata.semantic_id[t], labeldata.instance_id[t]]
             point_label = [veloscan[t][0], veloscan[t][1], veloscan[t][2], veloscan[t][3], labeldata.rgb_id[t], labelscan[t]]
+            # print(point_label)
             
             scan_label.append(point_label)
 
@@ -224,9 +232,9 @@ def save_velo_data(bag, kitti, velo_frame_id, velo_topic):
     datatimes = kitti.timestamps
 
     iterable = zip(datatimes, velo_filenames)
-    bar = progressbar.ProgressBar()
+    #bar = progressbar.ProgressBar()
 
-    for dt, veloname in bar(iterable):
+    for dt, veloname in tqdm(iterable):
         if dt is None:
             continue
 
@@ -359,9 +367,9 @@ def save_dynamic_transforms(bag, kitti, poses, master_frame_id, slave_frame_id, 
     datatimes = kitti.timestamps
 
     iterable = zip(datatimes, poses)
-    bar = progressbar.ProgressBar()
+    # bar = progressbar.ProgressBar()
 
-    for dt, pose in bar(iterable):
+    for dt, pose in tqdm(iterable):
         tf_dy_msg = TFMessage()
         tf_dy_transform = TransformStamped()
         
@@ -407,9 +415,9 @@ def save_camera_data(bag, kitti, calibration, bridge, camera, camera_frame_id, t
 
 
     iterable = zip(datatimes, image_file_names)
-    bar = progressbar.ProgressBar()
+    # bar = progressbar.ProgressBar()
 
-    for dt, filename in bar(iterable):
+    for dt, filename in tqdm(iterable):
         image_filename = os.path.join(image_file_dir, filename)
         cv_image = cv2.imread(image_filename)
         #calib.height, calib.width = cv_image.shape[ :2]
@@ -436,13 +444,13 @@ def save_pose_msg(bag, kitti, poses, master_frame_id, slave_frame_id, topic, ini
     datatimes = kitti.timestamps
 
     iterable = zip(datatimes, poses)
-    bar = progressbar.ProgressBar()
+    # bar = progressbar.ProgressBar()
 
     p_t1 = PoseStamped()
     dt_1 = 0.00
     counter = 0
 
-    for dt, pose in bar(iterable):
+    for dt, pose in tqdm(iterable):
         p = PoseStamped()
         p.header.frame_id = master_frame_id
         p.header.stamp = rospy.Time.from_sec(float(dt))
@@ -654,15 +662,7 @@ def wrap(x, dim):
 #     # print(rgb)
 #     # return np.asarray(rgb).astype(np.uint8)
 
-def run_semantickitti2bag():
-
-    parser = argparse.ArgumentParser(description='Convert SemanticKITTI dataset to rosbag file')
-
-
-    parser.add_argument("-p","--dataset_path", help='Path to Semantickitti file')
-    parser.add_argument("-s","--sequence_number", help='Sequence number, must be written as 1 to 01')
-    args = parser.parse_args()
-
+def run_semantickitti2bag(args):
     bridge = CvBridge()
     compression = rosbag.Compression.NONE
 
@@ -682,12 +682,14 @@ def run_semantickitti2bag():
         print("Sequence number is not given.")
         sys.exit(1)
 
-    scanlabel_bool = 1
+    scanlabel_bool = 1 # with label
     # if int(args.sequence_number) > 10:
     #     scanlabel_bool = 0
 
+    bag_file_path = os.path.join(args.bag_out_folder, "semantickitti_sequence{}.bag".format(args.sequence_number))
+
     #bag = rosbag.Bag("semanticusl_sequence{}.bag".format(args.sequence_number), 'w', compression=compression)    
-    bag = rosbag.Bag("semantickitti_sequence{}.bag".format(args.sequence_number), 'w', compression=compression)
+    bag = rosbag.Bag(bag_file_path, 'w', compression=compression)
 
     kitti = SemanticKitti_Raw(args.dataset_path, args.sequence_number, scanlabel_bool)
 
@@ -762,7 +764,7 @@ def run_semantickitti2bag():
         
         if scanlabel_bool == 1:
             #print('a')
-            save_velo_data_with_label(bag, kitti, velo_frame_id, velo_topic, bridge)
+            save_velo_data_with_label(bag, kitti, velo_frame_id, velo_topic, bridge, use_rangenet_pred=True) # change here
             #save_velo_data(bag, kitti, velo_frame_id, velo_topic)
 
         elif scanlabel_bool == 0:
@@ -779,3 +781,16 @@ def run_semantickitti2bag():
         print('Convertion is done')
         print(bag)
         bag.close()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Convert SemanticKITTI dataset to rosbag file')
+    parser.add_argument("-p","--dataset_path", help='Path to Semantickitti file')
+    parser.add_argument("-o","--bag_out_folder", help='Path to folder saving the output rosbag')
+    parser.add_argument("-s","--sequence_number", help='Sequence number, must be written as 1 to 01')
+    args = parser.parse_args()
+
+    run_semantickitti2bag(args)
+
+    # run it like:
+    # python3 semantickitti2bag.py -p /media/yuepan/BackupPlus/Data/kitti-dataset/dataset -o /my/output/folder -s 08

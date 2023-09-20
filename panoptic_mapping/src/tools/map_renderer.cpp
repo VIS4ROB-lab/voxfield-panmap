@@ -29,6 +29,7 @@ MapRenderer::MapRenderer(const Config& config, std::shared_ptr<Globals> globals,
     range_image_ = Eigen::MatrixXf(camera_->getConfig().height, camera_->getConfig().width);
 }
 
+// important function to inspect
 cv::Mat MapRenderer::render(const SubmapCollection& submaps,
                             const Transformation& T_M_C,
                             bool only_active_submaps,
@@ -203,7 +204,10 @@ cv::Mat MapRenderer::colorPanoImage(const cv::Mat& pano_id_image,
   for (int u = 0; u < result.cols; ++u) {
     for (int v = 0; v < result.rows; ++v) {
       int id = pano_id_image.at<int>(v, u);
-      if (id < 0) {
+      // if (id < 0) { // original, used for Flat
+      //   result.at<cv::Vec3b>(v, u) = cv::Vec3b{0, 0, 0};
+      // } 
+      if (id <= 0) { // (for BUP dataset, 0 is also considered as the background)
         result.at<cv::Vec3b>(v, u) = cv::Vec3b{0, 0, 0};
       } else if (id > kKITTIMaxIntstance * 9 && 
                  id % kKITTIMaxIntstance == 0) { // Dirty fix: KITTI instance object label begin from 10 
@@ -217,9 +221,44 @@ cv::Mat MapRenderer::colorPanoImage(const cv::Mat& pano_id_image,
   return result;
 }
 
+cv::Mat MapRenderer::colorPanoImageOverlaid(const cv::Mat& pano_id_image, 
+                                            const cv::Mat& color_image,
+                                            int colors_per_revolution) {
+  // Take an id_image (int) and render each ID to color using the exponential
+  // color wheel for better visualization.
+  // cv::Mat result(pano_id_image.rows, pano_id_image.cols, CV_8UC3);
+  cv::Mat result = color_image.clone();
+  if (pano_id_image.type() != CV_32SC1) {
+    LOG(WARNING) << "Input 'id_image' is not of type 'CV_32SC1', skipping.";
+    return result;
+  }
+
+  id_color_map_.setItemsPerRevolution(colors_per_revolution);
+  for (int u = 0; u < result.cols; ++u) {
+    for (int v = 0; v < result.rows; ++v) {
+      int id = pano_id_image.at<int>(v, u);
+      if(id > 0)
+      {
+        const voxblox::Color color = id_color_map_.colorLookup(id);
+        result.at<cv::Vec3b>(v, u) = cv::Vec3b{color.b, color.g, color.r};
+      }
+      // if (id <= 0) { // (for BUP dataset, 0 is also considered as the background)
+      //   result.at<cv::Vec3b>(v, u) 
+      // } else if (id > kKITTIMaxIntstance * 9 && 
+      //            id % kKITTIMaxIntstance == 0) { // Dirty fix: KITTI instance object label begin from 10 
+      //   result.at<cv::Vec3b>(v, u) = color_image.at<cv::Vec3b>(v, u);
+      // } else {
+      //   const voxblox::Color color = id_color_map_.colorLookup(id);
+      //   result.at<cv::Vec3b>(v, u) = cv::Vec3b{color.b, color.g, color.r};
+      // }
+    }
+  }
+  return result;
+}
+
 cv::Mat MapRenderer::colorIdImage(const cv::Mat& id_image,
                                   int colors_per_revolution) {
-  // Take an id_image (int) and render each ID to color using the exponential
+  // Take an id_image (int) containing the submap id and render each ID to color using the exponential
   // color wheel for better visualization.
   cv::Mat result(id_image.rows, id_image.cols, CV_8UC3);
   if (id_image.type() != CV_32SC1) {
@@ -228,12 +267,23 @@ cv::Mat MapRenderer::colorIdImage(const cv::Mat& id_image,
   }
 
   id_color_map_.setItemsPerRevolution(colors_per_revolution);
+
   for (int u = 0; u < result.cols; ++u) {
     for (int v = 0; v < result.rows; ++v) {
       int id = id_image.at<int>(v, u);
-      if (id < 0) {
+      if (id < 0) { // Original one
         result.at<cv::Vec3b>(v, u) = cv::Vec3b{0, 0, 0};
-      } else {
+      }
+      // if (id <= 1) {
+      //   result.at<cv::Vec3b>(v, u) = cv::Vec3b{200, 200, 200};// for BUP dataset only
+      // } 
+      else if (id == 0) { // for BUP dataset only, may represent the far-away sweet peppers 
+        result.at<cv::Vec3b>(v, u) = cv::Vec3b{0, 0, 0};
+      }
+      else if (id == 1) { // for BUP dataset only, the background submap should be shown in gray
+        result.at<cv::Vec3b>(v, u) = cv::Vec3b{200, 200, 200};
+      } 
+      else {
         const voxblox::Color color = id_color_map_.colorLookup(id);
         result.at<cv::Vec3b>(v, u) = cv::Vec3b{color.b, color.g, color.r};
       }
@@ -256,14 +306,18 @@ cv::Mat MapRenderer::colorGrayImage(const cv::Mat &image,
     
     CV_Assert(image.channels() == 1); // single channel gray input image
     
-    if (max_range > 0)
-      cv::threshold(image, image, max_range, -1, cv::THRESH_TRUNC);
+    cv::Mat result = image.clone();  // deep copy
+    
+    // cv::Mat result(image); // still share the memory
 
-    cv::Mat result;
+    if (max_range > 0)
+      cv::threshold(result, result, max_range, -1, cv::THRESH_TRUNC);
+
+    // cv::Mat result;
     
     // Normalize the grayscale image to 0-255
 	  // cv::normalize(image, result, 255, 0, cv::NORM_MINMAX);
-    result = 255.0 / max_range * image;
+    result = 255.0 / max_range * result;
 	  result.convertTo(result, CV_8UC1);
     
     if (color_scale == 1) // COLORMAP_JET
@@ -274,6 +328,26 @@ cv::Mat MapRenderer::colorGrayImage(const cv::Mat &image,
         cv::applyColorMap(result, result, cv::COLORMAP_HOT);
     else //default: gray
         return result;
+    
+    return result;
+}
+
+cv::Mat MapRenderer::depthFilter(const cv::Mat &image, const cv::Mat &depth_image,
+                                 float min_depth, float max_depth){
+    
+    CV_Assert(image.rows == depth_image.rows);
+    CV_Assert(image.cols == depth_image.cols);
+    
+    cv::Mat result(image);
+
+    for (int u = 0; u < depth_image.cols; u++) {
+      for (int v = 0; v < depth_image.rows; v++) {
+        const float depth = depth_image.at<float>(v, u);
+        // print(depth)
+        if (depth < min_depth || depth > max_depth)
+          result.at<cv::Vec3b>(v, u) = cv::Vec3b{0, 0, 0};
+      }
+    }
     
     return result;
 }

@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <boost/filesystem.hpp>
 
 #include <panoptic_mapping/common/common.h>
 #include <panoptic_mapping/common/camera.h>
@@ -13,6 +14,9 @@
 #include <panoptic_mapping/submap_allocation/freespace_allocator_base.h>
 #include <panoptic_mapping/submap_allocation/submap_allocator_base.h>
 #include <voxblox/io/layer_io_inl.h>
+
+#include "opencv2/imgproc.hpp"
+#include "opencv2/highgui.hpp"
 
 
 namespace panoptic_mapping {
@@ -63,13 +67,17 @@ void PanopticMapper::Config::setupParamsAndPrinting() {
   setupParam("save_map_path_when_finished", &save_map_path_when_finished);
   setupParam("display_config_units", &display_config_units);
   setupParam("indicate_default_values", &indicate_default_values);
-  setupParam("input_from_bag", &input_from_bag);
+  setupParam("input_point_cloud", &input_point_cloud);
   setupParam("use_lidar", &use_lidar);
   setupParam("use_range_image", &use_range_image);
   setupParam("estimate_normal", &estimate_normal);
   setupParam("filter_moving_objects", &filter_moving_objects);
+  setupParam("filter_depth_image", &filter_depth_image);
+  setupParam("filter_depth_erosion_size", &filter_depth_erosion_size);
   setupParam("use_panoptic_color", &use_panoptic_color);
   setupParam("msg_latency_s", &msg_latency_s);
+  setupParam("output_on", &output_data);
+  setupParam("output_base_path", &output_base);
 }
 
 PanopticMapper::PanopticMapper(const ros::NodeHandle& nh,
@@ -88,10 +96,10 @@ PanopticMapper::PanopticMapper(const ros::NodeHandle& nh,
       config_.display_config_units;
   LOG_IF(INFO, config_.verbosity >= 1) << "\n" << config_.toString();
 
+  // ros::Duration(0.5).sleep(); // to deal with the bagfile starting issue, sleep for 0.5 s
+
   // Setup all components of the panoptic mapper.
   setupMembers();
-  setupRos();
-
 }
 
 void PanopticMapper::setupMembers() {
@@ -116,9 +124,9 @@ void PanopticMapper::setupMembers() {
 
   // Globals.
   if(config_.use_lidar)
-    globals_ = std::make_shared<Globals>(lidar, label_handler); //lidar version
+    globals_ = std::make_shared<Globals>(lidar, label_handler); // lidar version
   else
-    globals_ = std::make_shared<Globals>(camera, label_handler); //depth cam version
+    globals_ = std::make_shared<Globals>(camera, label_handler); // depth cam version
   
   // Submap Allocation.
   std::shared_ptr<SubmapAllocatorBase> submap_allocator =
@@ -173,17 +181,20 @@ void PanopticMapper::setupMembers() {
   robot_mesh_pub_ = 
        nh_.advertise<visualization_msgs::Marker>("Robot_mesh", 100);
 
-  // Input subscriber (from rosbag)
-  if (config_.input_from_bag) {
+  // Input subscriber 
+  if (config_.input_point_cloud) { // the input is the point cloud
     int pointcloud_queue_size_ = 20; //2s // problem could be here
     pointcloud_sub_ = nh_.subscribe("pointcloud", pointcloud_queue_size_,
-                                    &PanopticMapper::insertPointcloud, this);
-
-
+                                    &PanopticMapper::inputPointCloud, this);
 
     // int pose_queue_size_ = 200;
     // transform_sub_ = nh_.subscribe("pose", pose_queue_size_,
     //                                 &PanopticMapper::publishRobotMesh, this);                               
+  } else { // the input is rgbd images
+    input_timer_ =
+        nh_private_.createTimer(ros::Duration(config_.check_input_interval),
+                                &PanopticMapper::inputRGBDCallback, this);
+
   }
   
   // Setup all requested inputs from all modules.
@@ -209,9 +220,7 @@ void PanopticMapper::setupMembers() {
       config_utilities::getConfigFromRos<InputSynchronizer::Config>(
           nh_private_),  nh_);
   input_synchronizer_->requestInputs(requested_inputs);
-}
 
-void PanopticMapper::setupRos() {
   // Setup all input topics.
   input_synchronizer_->advertiseInputTopics();
 
@@ -229,10 +238,14 @@ void PanopticMapper::setupRos() {
       "finish_mapping", &PanopticMapper::finishMappingCallback, this);
   save_mesh_srv_ = nh_private_.advertiseService(
       "save_mesh", &PanopticMapper::saveMeshCallback, this);
+  save_merged_mesh_srv_ = nh_private_.advertiseService(
+      "save_merged_mesh", &PanopticMapper::saveMergedMeshCallback, this);
   save_free_esdf_srv_ = nh_private_.advertiseService(
       "save_esdf_map", &PanopticMapper::saveFreeEsdfCallback, this);
   // evaluate_map_srv_ = nh_private_.advertiseService(
   //     "evaluate_map", &MapEvaluator::evaluate, this);
+  save_scene_graph_srv_ = nh_private_.advertiseService(
+      "save_scene_graph", &PanopticMapper::saveSceneGraphCallback, this);
 
   // set rainbow colormap
   color_map_.reset(new RainbowColorMap());
@@ -258,23 +271,17 @@ void PanopticMapper::setupRos() {
         nh_private_.createTimer(ros::Duration(config_.esdf_update_interval),
                                 &PanopticMapper::updateFreeEsdfCallback, this);
   }
-  if (config_.robot_mesh_interval > 0.0) { //
+  if (config_.robot_mesh_interval > 0.0) { 
     robot_mesh_timer_ = nh_private_.createTimer(
         ros::Duration(config_.robot_mesh_interval),
         &PanopticMapper::publishRobotMeshCallback, this);
   }
-
-  //input data not from rosbag (mainly for rgbd data)
-  if (!config_.input_from_bag)
-    input_timer_ =
-        nh_private_.createTimer(ros::Duration(config_.check_input_interval),
-                                &PanopticMapper::inputCallback, this);
 }
 
-// Import data from data folder instead of the rosbag
-void PanopticMapper::inputCallback(const ros::TimerEvent&) {
+// Import data is the rgbd (range) images
+void PanopticMapper::inputRGBDCallback(const ros::TimerEvent&) {
   if (input_synchronizer_->hasInputData()) {
-    std::shared_ptr<InputData> data = input_synchronizer_->getInputData();
+    std::shared_ptr<InputData> data = input_synchronizer_->getInputData(); // data should not be none here
     if (data) {
       processInput(data.get());
       if (config_.shutdown_when_finished) {
@@ -282,7 +289,8 @@ void PanopticMapper::inputCallback(const ros::TimerEvent&) {
         got_a_frame_ = true;
       }
     }
-  } else {
+  } else { // this is not for rosbag, but for the real-world data stream
+    // LOG(INFO) << "No more input data in the queue."; 
     if (config_.shutdown_when_finished && got_a_frame_ &&
         (ros::Time::now() - last_input_).toSec() >= 3.0) {
       // No more frames, finish up.
@@ -299,8 +307,8 @@ void PanopticMapper::inputCallback(const ros::TimerEvent&) {
   }
 }
 
-// Import point cloud from rosbag
-void PanopticMapper::insertPointcloud(
+// Import point cloud (not range image) from rosbag
+void PanopticMapper::inputPointCloud(
     const sensor_msgs::PointCloud2::Ptr& pointcloud_msg_in) {
   if (pointcloud_msg_in->header.stamp - last_msg_time_ptcloud_ >
       min_time_between_msgs_) {
@@ -326,6 +334,7 @@ void PanopticMapper::insertPointcloud(
   }
 }
 
+// Import point cloud (not range image) from rosbag
 // Checks if we can get the next message from queue.
 bool PanopticMapper::getNextPointcloudFromQueue(
     std::queue<sensor_msgs::PointCloud2::Ptr>* queue,
@@ -355,7 +364,7 @@ bool PanopticMapper::getNextPointcloudFromQueue(
   return false;
 }
 
-// Preprocess the imported point cloud 
+// Preprocess the imported point cloud (to convert them into range image for processing)
 void PanopticMapper::processPointCloudMessageAndInsert(
     const sensor_msgs::PointCloud2::Ptr& pointcloud_msg,
     const Transformation& T_G_C, const bool is_freespace_pointcloud) {
@@ -384,6 +393,8 @@ void PanopticMapper::processPointCloudMessageAndInsert(
   Pointcloud points_C;
   Colors colors;
   Labels labels;
+  ros::Time timestamp = pointcloud_msg->header.stamp;
+  std::string timestamp_str = std::to_string(timestamp.sec) + "_" + std::to_string(timestamp.nsec);
 
   // We need the panoptic labels for the panoptic mapping
   if (has_label) {
@@ -409,6 +420,11 @@ void PanopticMapper::processPointCloudMessageAndInsert(
         pointcloud_pcl(new pcl::PointCloud<pcl::PointXYZI>());
     pcl::fromROSMsg(*pointcloud_msg, *pointcloud_pcl);
     convertPointcloud(*pointcloud_pcl, color_map_, &points_C, &colors);
+    
+    // std::string output_filename = "/media/yuepan/DATA/1_data/newer_college/01/pcd_new/cloud_" + timestamp_str + ".pcd";
+    // if (pcl::io::savePCDFileBinary(output_filename, *pointcloud_pcl) == -1) {
+    //   PCL_ERROR("Couldn't write file\n");
+    // }
   } 
   else {
     pcl::PointCloud<pcl::PointXYZ>::Ptr 
@@ -416,6 +432,11 @@ void PanopticMapper::processPointCloudMessageAndInsert(
     // pointcloud_pcl is modified below:
     pcl::fromROSMsg(*pointcloud_msg, *pointcloud_pcl);
     convertPointcloud(*pointcloud_pcl, color_map_, &points_C, &colors);
+
+    // std::string output_filename = "/media/yuepan/DATA/1_data/newer_college/01/pcd_new/cloud_" + timestamp_str + ".pcd";
+    // if (pcl::io::savePCDFileBinary(output_filename, *pointcloud_pcl) == -1) {
+    //   PCL_ERROR("Couldn't write file\n");
+    // }
   }
 
   lidar_pre_timer.Stop();
@@ -490,13 +511,6 @@ void PanopticMapper::processPointCloudMessageAndInsert(
   Pointcloud().swap(points_C);
   Colors().swap(colors);
   Labels().swap(labels);
-
-  // vertex_map.release();
-  // depth_image.release();
-  // id_image.release();
-  // color_image.release();
-  // normal_image.release();
-  // post_timer.Stop();
 }
 
 void PanopticMapper::setupCollectionDependentMembers() {
@@ -511,14 +525,17 @@ void PanopticMapper::setupCollectionDependentMembers() {
   planning_visualizer_->setGlobalFrameName(config_.global_frame_name);
 }
 
-// main entrance for panoptic mapping processing 
+// main entrance for panoptic mapping processing (for both image and point cloud inputs)
 void PanopticMapper::processInput(InputData* input) {
   
   CHECK_NOTNULL(input);
   frame_count_ ++;
 
+  // std::cout<<"Why the ID Image is not here?"<<std::endl;
+  // std::cout<<input->idImage();
+
   if (config_.verbosity >= 2)
-    ROS_INFO("Process frame %d", frame_count_);
+    ROS_INFO("Process frame %d\n", frame_count_);
 
   Timer timer("process");
   frame_timer_ = std::make_unique<Timer>("frame");
@@ -526,6 +543,24 @@ void PanopticMapper::processInput(InputData* input) {
   ros::WallTime t00 = ros::WallTime::now();
   // Compute and store the validity image.
   if (config_.use_range_image) {
+    if(!config_.use_lidar) { //use rgbd image, preprocessing the depth image
+      if(config_.filter_depth_image) { // preprocess , filter the depth image
+        // Filter the depth image with bilateral filter, 1.5cm sigma, in 3 neighborhood
+        cv::Mat filtered_depth;
+        // cv::bilateralFilter(input->depthImage(), input->depthImage(), 3, 15, 15);
+        // Erosion for depth image
+        int erosion_size = config_.filter_depth_erosion_size;
+        cv::Mat erosion_element = cv::getStructuringElement(cv::MORPH_RECT, 
+                                                cv::Size(2 * erosion_size + 1, 2 * erosion_size + 1),
+                                                cv::Point(erosion_size, erosion_size));
+        cv::erode(input->depthImage(), filtered_depth, erosion_element);
+        input->setDepthImage(filtered_depth);
+      }
+      // input->depthImage()/=globals_->camera()->getConfig().depth_unit;
+      cv::Mat depth_m;
+      depth_m = input->depthImage()/globals_->camera()->getConfig().depth_unit;
+      input->setDepthImage(depth_m);
+    }
     if (compute_validity_image_) {
       //Timer validity_timer("process/compute_validity_image");
       if(config_.use_lidar) {
@@ -540,7 +575,7 @@ void PanopticMapper::processInput(InputData* input) {
     }
     // Compute and store the vertex map.
     if (compute_vertex_map_) { 
-      if (!config_.use_lidar && !config_.input_from_bag) {
+      if (!config_.use_lidar && !config_.input_point_cloud) {
         Timer vertex_timer("process/compute_vertex_map");
         input->setVertexMap(
             globals_->camera()->computeVertexMap(input->depthImage()));
@@ -572,7 +607,7 @@ void PanopticMapper::processInput(InputData* input) {
   // submap id 
 
   Timer id_timer("process/id_tracking");
-  id_tracker_->processInput(submaps_.get(), input); //input of this frame
+  id_tracker_->processInput(submaps_.get(), input); // input of this frame
   ros::WallTime t1 = ros::WallTime::now();
   id_timer.Stop();
   // NOTE(py): image visualization time also involved in process/id_tracking
@@ -619,6 +654,7 @@ void PanopticMapper::processInput(InputData* input) {
 
   // Logging.
   timer.Stop();
+
   //some time are spent on the validity image and vertex map computation
   std::stringstream info;
   if (config_.verbosity >= 3) {
@@ -641,6 +677,54 @@ void PanopticMapper::processInput(InputData* input) {
   //ROS_INFO_STREAM("Timings: " << std::endl << Timing::Print());
   LOG_IF(INFO, config_.print_timing_interval < 0.0) << "\n" << Timing::Print();
 
+  // Show robot mesh (comment later)
+  if (config_.robot_mesh_interval < 0.f 
+      && frame_count_ % int(config_.robot_mesh_interval) == 0) {
+      // publish the robot model with the pose
+      visualization_msgs::Marker robot_mesh;
+      robot_mesh.header.frame_id = config_.global_frame_name;
+      robot_mesh.header.stamp = ros::Time();
+      robot_mesh.mesh_resource = "file://" + config_.robot_mesh_file;
+      robot_mesh.mesh_use_embedded_materials = true;
+      robot_mesh.scale.x = robot_mesh.scale.y = robot_mesh.scale.z = config_.robot_mesh_scale;
+      robot_mesh.lifetime = ros::Duration();
+      robot_mesh.action = visualization_msgs::Marker::MODIFY;
+      robot_mesh.color.a = robot_mesh.color.r = robot_mesh.color.g = robot_mesh.color.b = 1.;
+      robot_mesh.type =  visualization_msgs::Marker::MESH_RESOURCE;
+
+      Eigen::Quaternionf quatrot = input->T_M_C().getEigenQuaternion();
+      // Eigen::Quaternionf quat45(0.924, 0.0, 0.0, 0.383); // rotation by 45 degree around z axis
+      // quatrot = quatrot * quat45;
+      
+      Point quat_vec = quatrot.vec();
+      robot_mesh.pose.orientation.x = quat_vec(0);
+      robot_mesh.pose.orientation.y = quat_vec(1);
+      robot_mesh.pose.orientation.z = quat_vec(2);
+      robot_mesh.pose.orientation.w = quatrot.w();
+      
+      Point translation = input->T_M_C().getPosition();
+      robot_mesh.pose.position.x = translation(0);
+      robot_mesh.pose.position.y = translation(1);
+      robot_mesh.pose.position.z = translation(2);
+
+      //LOG(INFO) << "drone position: (" << translation(0) << "," << translation(1) << "," << translation(2) << ")";
+      robot_mesh_pub_.publish(robot_mesh);
+  }
+
+  // save temporal results (tracked submap images and the deactivated submap meshes)
+  if (config_.output_data) {
+    std::string submap_mesh_folder_path = config_.output_base + "/submaps";
+    if (!boost::filesystem::exists(submap_mesh_folder_path.c_str())) {
+      if(!boost::filesystem::create_directories(submap_mesh_folder_path.c_str()))
+        return;
+    }
+    input->backupData(config_.output_base);
+    for (int did = 0; did < submaps_->deactivated_submap_ids.size(); did++) {
+      int cur_id = submaps_->deactivated_submap_ids[did];
+      submaps_->getSubmapPtr(cur_id)->saveMesh(submap_mesh_folder_path);
+    }
+    std::vector<int>().swap(submaps_->deactivated_submap_ids);
+  }
 }
 
 void PanopticMapper::finishMapping() {
@@ -649,18 +733,18 @@ void PanopticMapper::finishMapping() {
   submap_visualizer_->visualizeAll(submaps_.get());
 }
 
+// TODO: change here, use the rosbag's original time \clock when we are not use sim_clock
 void PanopticMapper::publishRobotMesh() {
   Transformation robot_pose;
   ros::Time cur_time = ros::Time::now();
-  int ns_in_s = 1000000000;
-  int msg_latency_ns = (int)(config_.msg_latency_s * ns_in_s);
-  if (cur_time.nsec > msg_latency_ns)
-    cur_time.nsec -= msg_latency_ns;
-  else {
-    cur_time.sec -= 1;
-    cur_time.nsec += (ns_in_s - msg_latency_ns); 
-  }
-
+  // int ns_in_s = 1000000000;
+  // int msg_latency_ns = (int)(config_.msg_latency_s * ns_in_s);
+  // if (cur_time.nsec > msg_latency_ns)
+  //   cur_time.nsec -= msg_latency_ns;
+  // else {
+  //   cur_time.sec -= 1;
+  //   cur_time.nsec += (ns_in_s - msg_latency_ns); 
+  // }
   transformer_->lookupTransform(config_.robot_frame_name,
                                 config_.global_frame_name,      
                                 cur_time,
@@ -681,7 +765,6 @@ void PanopticMapper::publishRobotMesh() {
   Eigen::Quaternionf quatrot = robot_pose.getEigenQuaternion();
   // Eigen::Quaternionf quat45(0.924, 0.0, 0.0, 0.383); // rotation by 45 degree around z axis
   // quatrot = quatrot * quat45;
-  
   Point quat_vec = quatrot.vec();
   robot_mesh.pose.orientation.x = quat_vec(0);
   robot_mesh.pose.orientation.y = quat_vec(1);
@@ -762,9 +845,15 @@ void PanopticMapper::updateNonFreeOccFromTsdf() {
 // }
 
 bool PanopticMapper::saveMap(const std::string& file_path) {
-  bool success = submaps_->saveToFile(file_path);
+  // Don't do it now
+  std::string panmap_path = file_path + "/panmap";
+  bool success = submaps_->saveToFile(panmap_path);
   LOG_IF(INFO, success) << "Successfully saved " << submaps_->size()
-                        << " submaps to '" << file_path << "'.";
+                        << " submaps to '" << panmap_path << "'.";
+
+  // also save the background mesh (only for CKA dataset)
+  std::string submap_mesh_folder_path = file_path + "/submaps";
+  submaps_->getSubmapPtr(1)->saveMesh(submap_mesh_folder_path);
   return success;
 }
 
@@ -812,7 +901,7 @@ bool PanopticMapper::saveMesh(const std::string& folder_path) {
 bool PanopticMapper::saveFreeEsdf(const std::string& file_path) {
   Submap* free_space_submap = submaps_->getSubmapPtr(submaps_->getActiveFreeSpaceSubmapID());
   
-  bool success = voxblox::io::SaveLayer(free_space_submap->getEsdfLayer(), file_path, false);
+  bool success = voxblox::io::SaveLayer(free_space_submap->getTsdfLayer(), file_path, false); // please change back to ESDF, now just for test
 
   LOG_IF(INFO, success) << "Successfully saved the free space Esdf to file '" << file_path << "'.";
   return success;
@@ -897,10 +986,33 @@ bool PanopticMapper::saveMeshCallback(
   return response.success;
 }
 
+// bool PanopticMapper::saveIDImagesCallback(
+//     panoptic_mapping_msgs::SaveLoadMap::Request& request,
+//     panoptic_mapping_msgs::SaveLoadMap::Response& response) {
+//   response.success = saveMesh(request.file_path);
+//   return response.success;
+// }
+
+// TODO (py):
+bool PanopticMapper::saveMergedMeshCallback(
+    panoptic_mapping_msgs::SaveLoadMap::Request& request,
+    panoptic_mapping_msgs::SaveLoadMap::Response& response) {
+  response.success = saveMesh(request.file_path);
+  return response.success;
+}
+
 bool PanopticMapper::saveFreeEsdfCallback(
     panoptic_mapping_msgs::SaveLoadMap::Request& request,
     panoptic_mapping_msgs::SaveLoadMap::Response& response) {
   response.success = saveFreeEsdf(request.file_path);
+  return response.success;
+}
+
+// TODO (py):
+bool PanopticMapper::saveSceneGraphCallback(
+    panoptic_mapping_msgs::SaveLoadMap::Request& request,
+    panoptic_mapping_msgs::SaveLoadMap::Response& response) {
+  response.success = saveMesh(request.file_path);
   return response.success;
 }
 

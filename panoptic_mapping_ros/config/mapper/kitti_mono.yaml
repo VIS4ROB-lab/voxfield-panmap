@@ -1,7 +1,7 @@
 # KITTI real-world LiDAR dataset
 # General Params
 verbosity: 2
-input_from_bag: true
+input_point_cloud: true
 use_lidar: &use_lidar true 
 use_panoptic_color: false # use semantic (false) or panoptic (true) color for the map visualization
 estimate_normal: &use_normal true

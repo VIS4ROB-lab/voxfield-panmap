@@ -12,6 +12,7 @@ void Camera::Config::checkParams() const {
   checkParamGT(vy, 0.f, "vy");
   checkParamGT(fx, 0.f, "fx");
   checkParamGT(fy, 0.f, "fy");
+  checkParamGT(depth_unit, 0.f, "depth_unit");
   checkParamGT(min_range, 0.f, "min_range");
   checkParamGT(smooth_thre_m, 0.f, "smooth_thre_m");
   checkParamCond(max_range > min_range,
@@ -28,6 +29,7 @@ void Camera::Config::setupParamsAndPrinting() {
   setupParam("vy", &vy, "px");
   setupParam("fx", &fx, "px");
   setupParam("fy", &fy, "px");
+  setupParam("depth_unit", &depth_unit);
   setupParam("max_range", &max_range, "m");
   setupParam("min_range", &min_range, "m");
   setupParam("smooth_thre_m", &smooth_thre_m, "m");

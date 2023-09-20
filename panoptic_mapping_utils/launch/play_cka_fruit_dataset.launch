@@ -1,0 +1,45 @@
+<launch>
+  <param name="use_sim_time" value="false" />
+<!-- ============ Arguments ============ -->
+  <!-- <arg name="base_path" default="/media/yuepan/DATA/1_data/CKA/CKA_sweet_pepper/BUP20/CKA_sweet_pepper_2020_summer/20201001/run_row5"/> -->
+  <arg name="base_path" default="/media/yuepan/DATA/1_data/CKA/CKA_fruit/processed/2022_09_19/row6/before"/>
+  <!-- <arg name="output_dir" default="/media/yuepan/DATA/1_data/CKA/CKA_fruit/processed/2022_09_05/row1/before/rosbag"/> -->
+  <arg name="output_dir" default="/home/yuepan/temp_rosbag"/>
+  <arg name="play_rate" default="1"/> 
+  <arg name="wait" default="false"/>
+  <arg name="namespace" default="/trollomatic/camera2"/>
+  <arg name="min_frames" default="800"/>
+  <arg name="max_frames" default="1500"/>
+  <arg name="global_frame_name" default="odom"/>
+  <arg name="sensor_frame_name" default="camera2_color_optical_frame"/>
+  <arg name="body_frame_name" default="base_link"/>
+  <arg name="record_data" default="true"/>
+    
+<!-- ============ Play Data ============ -->
+  <node pkg="panoptic_mapping_utils" type="cka_fruit_data_player.py" name="cka_fruit_data_player" output="screen">
+    <param name="data_path" value="$(arg base_path)" /> 
+    <param name="play_rate" value="$(arg play_rate)" /> 
+    <param name="global_frame_name" value="$(arg global_frame_name)" /> 
+    <param name="sensor_frame_name" value="$(arg sensor_frame_name)" /> 
+    <param name="wait" value="$(arg wait)" /> 
+    <param name="max_frames" value="$(arg max_frames)" /> 
+    <param name="min_frames" value="$(arg min_frames)" /> 
+            
+    <remap from="~color_image" to="$(arg namespace)/color/image_raw" />  
+    <remap from="~depth_image" to="$(arg namespace)/aligned_depth_to_color/image_raw" />  
+    <remap from="~id_image" to="$(arg namespace)/segmentation" />    
+  </node>
+
+  <!-- Record a rosbag of the visualization-->
+ 
+  <node pkg="rosbag" type="record" name="rosbag" if="$(arg record_data)" args="record -o $(arg output_dir)/ /clock /tf /tf_static $(arg namespace)/color/image_raw $(arg namespace)/aligned_depth_to_color/image_raw $(arg namespace)/segmentation"/> 
+
+
+  <!-- <node pkg="rosbag" type="record" name="rosbag" if="$(arg record_data)"
+       args="record -o $(arg output_dir)/ /rosout /clock /tf /tf_static /airsim_drone/ground_truth/pose /airsim_drone/Depth_cam /airsim_drone/Scene_cam /airsim_drone/Id_corrected /airsim_drone/Pointcloud">
+       args="record -o $(arg output_dir)/ /rosout /clock /tf* /data*"--> 
+  
+  <!-- RVIZ Visualization -->
+  <!-- <node type="rviz" name="rviz_rosbag" pkg="rviz" if="$(arg record_data)" args="-d $(find panoptic_mapping_utils)/config/vis_bup.rviz"/> -->
+
+</launch>

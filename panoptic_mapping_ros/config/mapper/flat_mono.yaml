@@ -1,13 +1,13 @@
 # Flat synthetic RGBD dataset
 # General Params
 verbosity: 4
-input_from_bag: false
+input_point_cloud: false
 use_lidar: &use_lidar false 
 use_range_image: &use_range_image true
 estimate_normal: &use_normal true
 use_threadsafe_submap_collection: false
 use_transform_caching: true
-use_tf_transforms: true
+use_tf_transforms: false
 transform_lookup_time: 0.1
 global_frame_name: world
 robot_frame_name: depth_camera
@@ -69,7 +69,7 @@ id_tracker:
 
 tsdf_integrator:  # different from those in voxblox
   # select from class_projective, class_raycast, class_adaptive, single_projective, single_raycast, projective, raycast, adaptive
-  type: single_raycast
+  type: single_projective
   verbosity: 2    
 
   use_lidar: *use_lidar

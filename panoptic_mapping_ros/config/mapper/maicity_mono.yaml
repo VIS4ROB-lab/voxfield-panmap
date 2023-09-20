@@ -1,15 +1,16 @@
 # Mai City synthetic LiDAR dataset
 # General Params
 verbosity: 2
-input_from_bag: true
+input_point_cloud: true
 use_lidar: &use_lidar true 
 use_range_image: &use_range_image true
-estimate_normal: &use_normal true
+estimate_normal: &use_normal false
 use_threadsafe_submap_collection: false
 use_transform_caching: true
 use_tf_transforms: true
 transform_lookup_time: 0.1
 global_frame_name: world
+sensor_frame: velodyne
 visualization_interval: -1.0
 data_logging_interval: 0.0
 print_timing_interval: -1.0
@@ -40,8 +41,8 @@ id_tracker:
   use_color: false
 
   # map allocator
-  voxel_size: 0.15
-  truncation_distance: -2 # -3
+  voxel_size: 0.2
+  truncation_distance: -3 # -3
   voxels_per_side: 16
 
   # freespace esdf mapping
@@ -86,7 +87,7 @@ tsdf_integrator:  # different from those in voxblox
   # Raycasting
   merged_raycasting: true # use "merged" raycast or not. "merged" raycast is faster but with larger tsdf error (almost no change of the mesh error)
   free_space_multi_threads: true # use multi-thread raycasting for the freespace submap independently, it should run faster if it is enabled
-  freespace_carving_enabled: true # if true, slower but can deal with dynamic artifacts
+  freespace_carving_enabled: false # if true, slower but can deal with dynamic artifacts
   max_ray_length_m: *max_range
   min_ray_length_m: *min_range
   

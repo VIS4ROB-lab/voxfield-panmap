@@ -3,6 +3,9 @@
   <!-- General -->
   <arg name="namespace" default="data"/> 
   <arg name="visualize" default="true"/> 
+
+  <!-- Use ROS Bag -->
+  <arg name="bag_speed" default="5.0"/> 
   
   <!-- use the rio dataset or not -->
   <arg name="use_rio" default="false"/>
@@ -15,13 +18,15 @@
 
   <!-- Flat Dataset args -->
   <!-- Please download the dataset from: https://projects.asl.ethz.ch/datasets/doku.php?id=panoptic_mapping-->
+  <arg name="data_path_flat" default="/media/yuepan/DATA/1_data/flat_dataset/rosbag/run1.bag"/> 
+
   <arg name="base_path" default="/media/yuepan/SeagateNew/1_data/flat_dataset/run1"/> 
   <arg name="play_rate" default="2"/>  <!-- Realtime factor (how many frame per second) -->
   <arg name="wait_time" default="1"/>  <!-- s -->
   <arg name="max_frames" default="1000"/> <!-- 90 -->
     
   <!-- Mapper -->
-  <arg name="config" default="flat_mono"/> <!-- flat_panmap (the multi-resolution mapping), flat_mono -->
+  <arg name="config" default="flat_panmap"/> <!-- flat_panmap (the multi-resolution mapping), flat_mono -->
   <arg name="shutdown_when_finished" default="false"/> 
   
   <!-- Save/Load maps for change detection -->
@@ -33,8 +38,11 @@
 <!-- ============ Run ============ -->
   <!-- Play data -->
   <arg name="wait" default="true" if="$(arg load_map)"/>
-  <include file="$(find panoptic_mapping_utils)/launch/play_flat_dataset.launch" pass_all_args="true" unless="$(arg use_rio)" />
-  <include file="$(find panoptic_mapping_utils)/launch/play_rio_dataset.launch" pass_all_args="true" if="$(arg use_rio)" /> 
+  <!-- <include file="$(find panoptic_mapping_utils)/launch/play_flat_dataset.launch" pass_all_args="true" unless="$(arg use_rio)" />
+  <include file="$(find panoptic_mapping_utils)/launch/play_rio_dataset.launch" pass_all_args="true" if="$(arg use_rio)" />  -->
+ 
+  <!-- use a rosbag instead -->
+  <node name="player" pkg="rosbag" type="play" output="screen" args=" -r $(arg bag_speed) $(arg data_path_flat) --clock"/>
   
   <!-- Mapper -->
   <node name="panoptic_mapper" pkg="panoptic_mapping_ros" type="panoptic_mapper_node" output="screen" >

@@ -1,0 +1,52 @@
+<launch>
+  <param name="use_sim_time" value="true" />
+<!-- ============ Arguments ============ -->
+  <!-- General -->
+  <arg name="namespace" default="/camera0"/> 
+  <arg name="visualize" default="true"/> 
+
+  <!-- Use ROS Bag -->
+  <arg name="bag_speed" default="1.2"/> 
+  
+  <!-- Robot model path -->
+  <arg name="robot_mesh_file" default="$(find panoptic_mapping_ros)/config/model/camera.dae"/> 
+
+  <!-- Youbot Map3 Dataset args -->
+  <arg name="data_path" default="/media/yuepan/DATA/1_data/youbot"/> 
+    
+  <!-- Mapper -->
+  <arg name="config" default="youbot_mono"/> <!-- youbot_mono -->
+  <arg name="shutdown_when_finished" default="false"/> 
+
+
+<!-- ============ Run ============ -->
+
+  <!-- use a rosbag instead -->
+  <node name="player" pkg="rosbag" type="play" output="screen" args=" -r $(arg bag_speed) $(arg data_path)/17_f.bag $(arg data_path)/18_f.bag $(arg data_path)/19_f.bag $(arg data_path)/20_f.bag $(arg data_path)/21_f.bag $(arg data_path)/22_f.bag $(arg data_path)/23_f.bag $(arg data_path)/24_f.bag $(arg data_path)/25_f.bag $(arg data_path)/26_f.bag $(arg data_path)/27_f.bag $(arg data_path)/28_f.bag --clock"/>
+
+
+  <!-- publish gt pose-->
+  <node pkg="panoptic_mapping_utils" type="GTNode.py" name="GTNode0" output="screen">
+    <param name="csvPath" value="/media/yuepan/DATA/1_data/youbot/gt_youbot/raw_gt.csv"/>
+    <param name="multiCam" value="false"/> 
+  </node>
+
+  
+  <!-- Mapper -->
+  <node name="panoptic_mapper" pkg="panoptic_mapping_ros" type="panoptic_mapper_node" output="screen" >
+
+    <!-- Config -->
+    <rosparam file="$(find panoptic_mapping_ros)/config/mapper/$(arg config).yaml"/>
+    <rosparam file="$(find panoptic_mapping_ros)/config/calib/youbot_calib.yaml"/> 
+    <param name="robot_mesh_file" value="$(arg robot_mesh_file)"/>
+    <!-- Input -->
+    <remap from="color_image_in" to="$(arg namespace)/color/image_raw"/>
+    <remap from="depth_image_in" to="$(arg namespace)/aligned_depth_to_color/image_raw"/>
+    <remap from="transform" to="gt" />
+  </node>  
+  
+  
+  <!-- RVIZ Visualization-->
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find panoptic_mapping_ros)/config/rviz/vis_youbot.rviz" output="screen" if="$(arg visualize)"/>
+
+</launch>

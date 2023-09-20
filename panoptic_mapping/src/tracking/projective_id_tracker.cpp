@@ -35,6 +35,7 @@ void ProjectiveIDTracker::Config::setupParamsAndPrinting() {
   setupParam("renderer", &renderer);
   setupParam("vis_render_image", &vis_render_image);
   setupParam("use_lidar", &use_lidar);
+  setupParam("rotate_image", &rotate_image); // rotate the image for visualization
 }
 
 ProjectiveIDTracker::ProjectiveIDTracker(const Config& config,
@@ -61,7 +62,10 @@ void ProjectiveIDTracker::processInput(SubmapCollection* submaps,
   // visualize the input panoptic range image
   if (visualizationIsOn()) {
     // cv::Mat input_vis = renderer_.colorIdImage(input->idImage(), 29); //should be before the processing 
-    cv::Mat input_vis = renderer_.colorPanoImage(input->idImage(), input->colorImage(), 19); //should be before the processing 
+    // cv::Mat input_vis = renderer_.colorPanoImage(input->idImage(), input->colorImage(), 19); //should be before the processing (for KITTI and BUP)
+    cv::Mat input_vis = renderer_.colorPanoImageOverlaid(input->idImage(), input->colorImage(), 19); // for test, better visualization 
+    if (config_.rotate_image)
+      cv::rotate(input_vis, input_vis, cv::ROTATE_90_CLOCKWISE);
     visualize(input_vis, "input"); //input instance id
     input_vis.release();
   }
@@ -71,7 +75,7 @@ void ProjectiveIDTracker::processInput(SubmapCollection* submaps,
   Timer timer("tracking");
   auto t0 = std::chrono::high_resolution_clock::now();
   Timer com_track_timer("tracking/compute_tracking_data");
-  TrackingInfoAggregator tracking_data = computeTrackingData(submaps, input);
+  TrackingInfoAggregator tracking_data = computeTrackingData(submaps, input); // important
   com_track_timer.Stop();
 
   // Assign the input ids to tracks or allocate new maps.
@@ -89,10 +93,14 @@ void ProjectiveIDTracker::processInput(SubmapCollection* submaps,
 
   std::set<int> cur_submap_id_set;
 
-
   Timer match_timer("tracking/match_ids");
+
+  // add (yuepan): used sorted id list (we'd like to have the background class as submap_1 for the BUP dataset)
+  std::vector<int> ordered_id = tracking_data.getInputIDs(); 
+  std::sort(ordered_id.begin(), ordered_id.end());
+
   // for each input label
-  for (const int input_id : tracking_data.getInputIDs()) {
+  for (const int input_id : ordered_id) {
     
     match_timer.Unpause();
     
@@ -115,7 +123,7 @@ void ProjectiveIDTracker::processInput(SubmapCollection* submaps,
       if (config_.use_class_data_for_matching) { //default: true
         for (const auto& id_value : ids_values) {
           // These are ordered in decreasing overlap metric.
-          if (id_value.second < config_.match_acceptance_threshold) { //iou of such label smaller than threshold
+          if (id_value.second < config_.match_acceptance_threshold) { // iou of such label smaller than threshold
             // No more matches possible.
             break;
           } 
@@ -143,7 +151,7 @@ void ProjectiveIDTracker::processInput(SubmapCollection* submaps,
       // Print the matching statistics for all submaps.
       if (config_.verbosity >= 4) {
         logging_details << ". Overlap: ";
-        for (const auto& id_value : ids_values) { //from large to small
+        for (const auto& id_value : ids_values) { // from large to small
           logging_details << " " << id_value.first << "(" << std::fixed
                           << std::setprecision(2) << id_value.second << ")";
         }
@@ -212,7 +220,6 @@ void ProjectiveIDTracker::processInput(SubmapCollection* submaps,
       }
       info << logging_details.str();
     }
-
     alloc_timer.Pause();
   }
   alloc_timer.Stop();
@@ -243,39 +250,59 @@ void ProjectiveIDTracker::processInput(SubmapCollection* submaps,
   vis_timer.Unpause();
   // Publish Visualization if requested.
   if (visualizationIsOn()) {
+
+    float max_depth, min_depth;
+    if (config_.use_lidar) {
+      max_depth = globals_->lidar()->getConfig().max_range; 
+      min_depth = globals_->lidar()->getConfig().min_range; 
+    } else {
+      max_depth = globals_->camera()->getConfig().max_range; 
+      min_depth = globals_->camera()->getConfig().min_range; 
+    }
+
     // TODO(py): make it more efficient 
     Timer vis_render_timer("visualization/images/rendered");
-    if (config_.use_approximate_rendering && config_.vis_render_image) {
+    if (config_.use_approximate_rendering && config_.vis_render_image) { // using approximate_rendering
        rendered_vis_ = renderer_.colorIdImage(
           renderer_.renderActiveSubmapIDs(*submaps, input->T_M_C()), 30); //rendered image
     }
     vis_render_timer.Stop();
 
     Timer vis_track_timer("visualization/images/tracked");
+    
     cv::Mat tracked_vis = renderer_.colorIdImage(input->idImage(), 30);
-
-    float max_depth;
-    if (config_.use_lidar) {
-      max_depth = globals_->lidar()->getConfig().max_range; 
-    } else {
-      max_depth = globals_->camera()->getConfig().max_range; 
-    }
+    tracked_vis = renderer_.depthFilter(tracked_vis, input->depthImage(), min_depth, max_depth);
+    
     cv::Mat depth_vis = renderer_.colorGrayImage(input->depthImage(), max_depth);
     cv::Mat normal_vis;
+    cv::Mat color_vis = input->colorImage().clone();
+
+    if (config_.rotate_image) {
+      cv::rotate(depth_vis, depth_vis, cv::ROTATE_90_CLOCKWISE);
+      cv::rotate(color_vis, color_vis, cv::ROTATE_90_CLOCKWISE);
+      cv::rotate(tracked_vis, tracked_vis, cv::ROTATE_90_CLOCKWISE);
+    }
     
     // visualize image 
-    visualize(input->colorImage(), "color"); //original color
+    visualize(color_vis, "color"); //original color
     visualize(tracked_vis, "tracked"); //tracked submap id
     visualize(depth_vis, "depth"); // you need to change it also to CV_U8C3, now it's CV_F32C1
     
-    if (input->has(InputData::InputType::kNormalImage)){
+    if (input->has(InputData::InputType::kNormalImage)) {
       normal_vis = renderer_.colorFloatImage(input->normalImage());
+      if (config_.rotate_image)
+        cv::rotate(normal_vis, normal_vis, cv::ROTATE_90_CLOCKWISE);
       visualize(normal_vis, "normal"); // you need to change it also to CV_U8C3, now it's CV_F32C3
     }
 
-    if(config_.vis_render_image)
-      visualize(rendered_vis_, "rendered");  
-
+    if(config_.vis_render_image) {
+      cv::Mat rendered_vis = rendered_vis_.clone();
+      if (config_.rotate_image)
+        cv::rotate(rendered_vis, rendered_vis, cv::ROTATE_90_CLOCKWISE);
+      visualize(rendered_vis, "rendered");
+      rendered_vis.release();
+    }
+    color_vis.release();
     tracked_vis.release();
     depth_vis.release();
     normal_vis.release();
@@ -329,7 +356,7 @@ TrackingInfoAggregator ProjectiveIDTracker::computeTrackingData(
         std::launch::async,
         [this, i, &tracking_data, &index_getter, submaps,
          input]() -> std::vector<TrackingInfo> {
-          // Also process the input image. 
+          // Also process the input image. for the first thread
           if (i == 0) {
             if (config_.use_lidar){
               tracking_data.insertInputImage(
@@ -355,7 +382,7 @@ TrackingInfoAggregator ProjectiveIDTracker::computeTrackingData(
                 result.emplace_back(this->renderTrackingInfoApproximateCamera(
                     submaps->getSubmap(index), *input));
               }
-            } else {
+            } else { // not approximate (what's the difference)
               result.emplace_back(this->renderTrackingInfoVertices(
                   submaps->getSubmap(index), *input));
             }
@@ -376,7 +403,7 @@ TrackingInfoAggregator ProjectiveIDTracker::computeTrackingData(
   if (config_.verbosity > 4)
     ROS_INFO("tracking info count: %d", infos.size());
 
-  // Render the data if required.
+  // Render the data if required. (not the approximate rendering)
   if (visualizationIsOn() && !config_.use_approximate_rendering) {
     Timer timer("visualization/tracking/rendered");
     cv::Mat vis;
@@ -398,7 +425,8 @@ TrackingInfoAggregator ProjectiveIDTracker::computeTrackingData(
   return tracking_data;
 }
 
-//render the already built submap in current view
+// render the already built submap in current view 
+// Why does it not work for BUP dataset
 TrackingInfo ProjectiveIDTracker::renderTrackingInfoApproximateCamera(
     const Submap& submap, const InputData& input) const {
   // Approximate rendering by projecting the surface points of the submap into
@@ -409,12 +437,15 @@ TrackingInfo ProjectiveIDTracker::renderTrackingInfoApproximateCamera(
   const Camera& camera = *globals_->camera();
   TrackingInfo result(submap.getID(), camera.getConfig());
   const Transformation T_C_S = input.T_M_C().inverse() * submap.getT_M_S();
+  // approximate size of the submap volume back-projected to the image 
   const float size_factor_x =
       camera.getConfig().fx * submap.getTsdfLayer().voxel_size() / 2.f;
   const float size_factor_y =
       camera.getConfig().fy * submap.getTsdfLayer().voxel_size() / 2.f;
+  
   const float block_size = submap.getTsdfLayer().block_size();
   const FloatingPoint block_diag_half = std::sqrt(3.0f) * block_size / 2.0f;
+  
   const float depth_tolerance =
       config_.depth_tolerance > 0
           ? config_.depth_tolerance
@@ -429,10 +460,11 @@ TrackingInfo ProjectiveIDTracker::renderTrackingInfoApproximateCamera(
                                      block_diag_half)) {
       continue;
     }
+    // need to use the mesh, so the reconstruction should be done per frame
     for (const Point& vertex :
-         submap.getMeshLayer().getMeshByIndex(index).vertices) {
+         submap.getMeshLayer().getMeshByIndex(index).vertices) { // for each mesh vertex of the submap
       // Project vertex and check depth value.
-      const Point p_C = T_C_S * vertex;
+      const Point p_C = T_C_S * vertex; // back to the image frame
       int u, v;
       if (!camera.projectPointToImagePlane(p_C, &u, &v)) {
         continue;
@@ -533,22 +565,23 @@ TrackingInfo ProjectiveIDTracker::renderTrackingInfoVertices(
 
   // NOTE(schmluk): Currently just iterate over the whole frame since the sphere
   // tangent computation was not robustly implemented.
-  size_t subsampling_factor = 1;
+  // size_t subsampling_factor = 1;
   limits = {0u, static_cast<size_t>(cam_config.width), 0u,
             static_cast<size_t>(cam_config.height)};
   const Transformation T_S_C = T_C_S.inverse();
-  const TsdfLayer& tsdf_layer = submap.getTsdfLayer();
+  const TsdfLayer& tsdf_layer = submap.getTsdfLayer(); // submap tsdf volume
   const float depth_tolerance =
       config_.depth_tolerance > 0
           ? config_.depth_tolerance
           : -config_.depth_tolerance * submap.getTsdfLayer().voxel_size();
+  // for the whole image
   for (size_t u = limits[0]; u < limits[1];
        u += config_.rendering_subsampling) {
     for (size_t v = limits[2]; v < limits[3];
          v += config_.rendering_subsampling) {
-      const float depth = input.depthImage().at<float>(v, u);
+      const float depth = input.depthImage().at<float>(v, u); // not just z
       if (depth < cam_config.min_range || depth > cam_config.max_range) {
-        continue;
+        continue; // filtered
       }
       const cv::Vec3f& vertex = input.vertexMap().at<cv::Vec3f>(v, u);
       const Point P_S = T_S_C * Point(vertex[0], vertex[1], vertex[2]);

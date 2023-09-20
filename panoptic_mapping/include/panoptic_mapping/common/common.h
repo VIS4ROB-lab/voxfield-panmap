@@ -88,7 +88,7 @@ inline std::string panopticLabelToString(const PanopticLabel& label) {
   }
 }
 
-struct Label {
+struct Label { // in semantic kitti format
   Label() : sem_label(0), ins_label(0) {}
   Label(short int _sem_label, short int _ins_label) 
       : sem_label(_sem_label), ins_label(_ins_label) {}

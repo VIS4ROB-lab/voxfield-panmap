@@ -23,7 +23,7 @@ class FlatDataPlayer(object):
         """  Initialize ros node and read params """
         # params
         self.data_path = rospy.get_param(
-            '~data_path', '/home/lukas/Documents/Datasets/flat_dataset/run1')
+            '~data_path', 'Datasets/flat_dataset/run1')
         self.global_frame_name = rospy.get_param('~global_frame_name', 'world')
         self.sensor_frame_name = rospy.get_param('~sensor_frame_name',
                                                  "depth_cam")
@@ -31,7 +31,7 @@ class FlatDataPlayer(object):
         self.play_rate = rospy.get_param('~play_rate', 1.0)
         self.wait = rospy.get_param('~wait', False)
         self.max_frames = rospy.get_param('~max_frames', 1e9)
-        self.refresh_rate = 100  # Hz
+        self.refresh_rate = 200  # Hz
 
         # ROS
         self.color_pub = rospy.Publisher("~color_image", Image, queue_size=100)
@@ -106,7 +106,7 @@ class FlatDataPlayer(object):
             pred_file = file_id + "_predicted.png"
             labels_file = file_id + "_labels.json"
             files += [pred_file, labels_file]
-        else:
+        else: # ground truth
             pred_file = file_id + "_segmentation.png"
             files.append(pred_file)
         for f in files:
@@ -180,7 +180,7 @@ class FlatDataPlayer(object):
         self.pose_pub.publish(pose_msg)
 
         self.current_index += 1
-        if self.current_index > self.max_frames:
+        if self.current_index > float(self.max_frames):
             rospy.signal_shutdown("Played reached max frames (%i)" %
                                   self.max_frames)
 

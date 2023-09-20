@@ -1,0 +1,66 @@
+<launch>
+<!-- ============ HOMA: horticultural mapping system ============ -->
+  <param name="use_sim_time" value="false" />
+<!-- ============ Arguments ============ -->
+  <!-- General -->
+  <!-- select from camera1,2,3 --> 
+  <arg name="namespace" default="/trollomatic/camera2"/>  
+  <!-- <arg name="namespace" default="/device_0/sensor_0"/>   -->
+
+  <arg name="sensor_frame_name" default="camera2_color_optical_frame"/>
+  
+ 
+  <arg name="visualize" default="true"/> 
+
+  <!-- Use ROS Bag -->
+  <arg name="bag_speed" default="0.5"/>  <!-- 1.0 means 15Hz here -->
+  
+  <!-- Robot model path -->
+  <arg name="robot_mesh_file" default="$(find panoptic_mapping_ros)/config/model/camera_v2.ply"/> 
+
+  <!-- BUP Dataset args -->
+  <!-- <arg name="data_path" default="/home/yuepan/temp_rosbag/trolley_2022-09-05-13-05-43_sp_row1_before.bag"/>  -->
+  <!-- rosbag filter does not work here, a lot of tf are missing -->
+  <!-- <arg name="data_path" default="/media/yuepan/DATA/1_data/CKA/CKA_2022/SweetPepper/20220905/trolley_2022-09-05-13-05-43_sp_row1_before_out.bag"/> -->
+  <!-- <arg name="data_path" default="/media/yuepan/DATA/1_data/CKA/CKA_2022/SweetPepper/20220905/trolley_2022-09-05-13-28-38_sp_row6_before_out.bag"/>  -->
+  <!-- <arg name="data_path" default="/media/yuepan/DATA/1_data/CKA/CKA_2022/SweetPepper/20220919/trolley_2022-09-19-11-00-57_sp_row6_before_out_part1.bag"/>  -->
+  
+  <arg name="data_path" default="/media/yuepan/DATA/1_data/CKA/CKA_fruit/processed/2022_09_05/row6/before/rosbag/cam2_metashape_pose_aligned.bag"/>
+  
+  <!-- <arg name="data_path" default="/media/yuepan/DATA/1_data/CKA/CKA_sweet_pepper/BUP20_raw_data/20200924/24092020104009_sweet_pepper_row1/trollomaticcamera2_947522072229.bag"/>  -->
+  
+  <!-- trolley_2022-09-05-13-05-43_sp_row1_before.bag-->
+  <!-- trolley_2022-09-26-10-37-49_sp_row1_after_filtered.bag -->
+
+  <!-- Mapper -->
+  <arg name="config" default="homa_panmap"/> <!-- homa_panmap (the multi-resolution mapping), homa_mono -->
+
+
+<!-- ============ Run ============ -->
+  <!-- Play data -->
+  <!--include file="$(find panoptic_mapping_utils)/launch/play_cka_fruit_dataset.launch" pass_all_args="true"/-->
+ 
+  <!-- use a rosbag instead -->
+  <node name="player" pkg="rosbag" type="play" output="screen" args="-r $(arg bag_speed) -s 0 $(arg data_path) "/> <!-- start from -s x seconds-->
+  
+  <!-- Mapper -->
+  <node name="panoptic_mapper" pkg="panoptic_mapping_ros" type="panoptic_mapper_node" output="screen" >
+
+    <!-- Config -->
+    <rosparam file="$(find panoptic_mapping_ros)/config/mapper/$(arg config).yaml"/>
+    <rosparam file="$(find panoptic_mapping_ros)/config/calib/homa_calib.yaml"/>
+    <param name="robot_mesh_file" value="$(arg robot_mesh_file)"/>
+    <param name="sensor_frame_name" value="$(arg sensor_frame_name)"/>
+    
+    <!-- Input -->
+    <remap from="color_image_in" to="$(arg namespace)/color/image_raw"/> 
+    <remap from="depth_image_in" to="$(arg namespace)/aligned_depth_to_color/image_raw"/>
+    <remap from="segmentation_image_in" to="$(arg namespace)/segmentation"/>
+
+    <!-- <remap from="color_image_in" to="$(arg namespace)/Color_0/image/data"/> 
+    <remap from="depth_image_in" to="$(arg namespace)/Depth_0/image/data"/> -->
+  </node>  
+  
+  <!-- RVIZ Visualization-->
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find panoptic_mapping_ros)/config/rviz/vis_homa.rviz" output="screen" if="$(arg visualize)"/>
+</launch>

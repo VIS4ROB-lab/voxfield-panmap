@@ -117,6 +117,7 @@ void TrackingInfoAggregator::insertTrackingInfo(const TrackingInfo& info) {
   }
 }
 
+// For camera input
 void TrackingInfoAggregator::insertInputImage(const cv::Mat& id_image,
                                               const cv::Mat& depth_image,
                                               const Camera::Config& camera,
@@ -131,6 +132,7 @@ void TrackingInfoAggregator::insertInputImage(const cv::Mat& id_image,
   }
 }
 
+// For LiDAR input
 void TrackingInfoAggregator::insertInputImage(const cv::Mat& id_image,
                                               const cv::Mat& depth_image,
                                               const Lidar::Config& lidar,

@@ -52,8 +52,10 @@ class MapRenderer {
   // colorize images
   cv::Mat colorIdImage(const cv::Mat& id_image, int colors_per_revolution = 20);
   cv::Mat colorPanoImage(const cv::Mat& pano_id_image, const cv::Mat& sem_image, int colors_per_revolution = 20);
+  cv::Mat colorPanoImageOverlaid(const cv::Mat& pano_id_image, const cv::Mat& color_image, int colors_per_revolution = 20);
   cv::Mat colorGrayImage(const cv::Mat &image, float trunc_max_value = -1.0, int color_scale = 1); //Jet colormap
   cv::Mat colorFloatImage(const cv::Mat &input_img);
+  cv::Mat depthFilter(const cv::Mat &image, const cv::Mat &depth_image, float min_depth, float max_depth);
 
  private:
   const Config config_;

@@ -7,14 +7,18 @@
 #include <unordered_set>
 
 #include <cv_bridge/cv_bridge.h>
+#include <minkindr_conversions/kindr_msg.h>
 #include <minkindr_conversions/kindr_tf.h>
+#include <minkindr_conversions/kindr_xml.h>
 #include <panoptic_mapping_msgs/DetectronLabels.h>
 #include <sensor_msgs/Image.h>
+
 
 #include "panoptic_mapping_ros/conversions/conversions.h"
 
 namespace panoptic_mapping {
 
+// TODO(py): unify the transformation part with the transformation class
 const std::unordered_map<InputData::InputType, std::string>
     InputSynchronizer::kDefaultTopicNames_ = {
         {InputData::InputType::kDepthImage, "depth_image_in"},
@@ -43,6 +47,37 @@ InputSynchronizer::InputSynchronizer(const Config& config,
   LOG_IF(INFO, config_.verbosity >= 1) << "\n" << config_.toString();
   if (!config_.sensor_frame_name.empty()) {
     used_sensor_frame_name_ = config_.sensor_frame_name;
+  }
+
+  // Coordinate transformation parameters
+  XmlRpc::XmlRpcValue T_B_D_xml;
+  // TODO(helenol): split out into a function to avoid duplication.
+  if (nh.getParam("T_B_D", T_B_D_xml)) {
+    kindr::minimal::xmlRpcToKindr(T_B_D_xml, &T_B_D_);
+
+    // See if we need to invert it.
+    bool invert_static_tranform = false;
+    nh.param("invert_T_B_D", invert_static_tranform,
+                      invert_static_tranform);
+    if (invert_static_tranform) {
+      T_B_D_ = T_B_D_.inverse();
+    }
+    
+    LOG(INFO) << "T_B_D:\n" << T_B_D_;
+  }
+  XmlRpc::XmlRpcValue T_B_C_xml;
+  if (nh.getParam("T_B_C", T_B_C_xml)) {
+    kindr::minimal::xmlRpcToKindr(T_B_C_xml, &T_B_C_);
+
+    // See if we need to invert it.
+    bool invert_static_tranform = false;
+    nh.param("invert_T_B_C", invert_static_tranform,
+                        invert_static_tranform);
+    if (invert_static_tranform) {
+      T_B_C_ = T_B_C_.inverse();
+    }
+    
+    LOG(INFO) << "T_B_C:\n" << T_B_C_;
   }
 }
 
@@ -98,14 +133,19 @@ void InputSynchronizer::advertiseInputTopics() {
         break;
       }
       case InputData::InputType::kSegmentationImage: {
+        
         using MsgT = sensor_msgs::ImageConstPtr;
         addQueue<MsgT>(type, [](const MsgT& msg, InputSynchronizerData* data) {
           const cv_bridge::CvImageConstPtr seg =
               cv_bridge::toCvCopy(msg, "32SC1"); //32 bit signed int
           data->data->id_image_ = seg->image; //id_image_
+          // std::cout << (seg->image); //actually exsit, everything is right, so I don't know why it does not work
+
           const std::lock_guard<std::mutex> lock(data->write_mutex_);
           data->data->contained_inputs_.insert(
               InputData::InputType::kSegmentationImage);
+          // actually loaded
+          // std::cout << "Found a segmentation image" <<std::endl; // required
         });
         subscribed_inputs_.insert(InputData::InputType::kSegmentationImage);
         break;
@@ -137,18 +177,22 @@ bool InputSynchronizer::getDataInQueue(const ros::Time& timestamp,
   }
   auto it = find_if(
       data_queue_.begin(), data_queue_.end(),
-      [&timestamp](const auto& arg) { return arg->timestamp == timestamp; });
-  if (it != data_queue_.end()) {
+      [&timestamp](const auto& arg) { return arg->timestamp == timestamp; }); // why directly equal?
+  // cannot find a match
+  if (it != data_queue_.end()) { // if find a match
     // There already exists a data point.
     if (!it->get()->valid) {
+      // std::cout << "data not valid" << std::endl;
       return false;
+      // why not valid
     }
     *data = it->get();
     return true;
   }
+  // Not found a match
 
   // Create a new data point.
-  if (allocateDataInQueue(timestamp)) {
+  if (allocateDataInQueue(timestamp)) { // we are keep doing this
     *data = data_queue_.back().get();
     return true;
   }
@@ -159,6 +203,8 @@ bool InputSynchronizer::allocateDataInQueue(const ros::Time& timestamp) {
   // NOTE(schmluk): This obviously modifies the queue but the data_mutex_ should
   // already be locked from the calling getDataInQueue().
   // Check max queue size.
+
+  // std::cout<<timestamp;
   if (data_queue_.size() > config_.max_input_queue_length) {
     std::sort(data_queue_.begin(), data_queue_.end(),
               [](const auto& lhs, const auto& rhs) -> bool {
@@ -175,10 +221,10 @@ bool InputSynchronizer::allocateDataInQueue(const ros::Time& timestamp) {
     LOG_IF(WARNING, config_.verbosity >= 2)
         << "Input queue is getting too long, dropping oldest data.";
     oldest_time_ = data_queue_.front()->timestamp;
-  }
+  } // dropping old data
 
   data_queue_.emplace_back(new InputSynchronizerData());
-  InputSynchronizerData& data = *data_queue_.back();
+  InputSynchronizerData& data = *data_queue_.back(); // the last data
 
   // Check transform.
   Transformation T_M_C;
@@ -196,6 +242,7 @@ bool InputSynchronizer::allocateDataInQueue(const ros::Time& timestamp) {
   data.data->setT_M_C(T_M_C);
   data.data->setFrameName(used_sensor_frame_name_);
   data.timestamp = timestamp;
+  // std::cout<<"New data point created"<<std::endl;
   return true;
 }
 
@@ -203,28 +250,35 @@ void InputSynchronizer::checkDataIsReady(InputSynchronizerData* data) {
   const std::lock_guard<std::mutex> lock(data->write_mutex_);
   for (const InputData::InputType input : subscribed_inputs_) {
     if (!data->data->has(input)) {
+      // std::cout<<"Missing " << (InputData::inputTypeToString(input)) << std::endl;
       return;
     }
   }
+  // std::cout<<"All data is ready."<<std::endl;
   // Has all required inputs.
   data->ready = true;
   data_is_ready_ = true;
 }
 
 std::shared_ptr<InputData> InputSynchronizer::getInputData() {
+  
   std::shared_ptr<InputData> result = nullptr;
   std::lock_guard<std::mutex> lock(data_mutex_);
   // Get the first datum that is ready.
+  // std::cout<<data_queue_;
+  // std::cout<<"Data queue size:" << data_queue_.size()<<std::endl; // this is not the problem
   std::sort(data_queue_.begin(), data_queue_.end(),
             [](const auto& lhs, const auto& rhs) -> bool {
               return lhs->timestamp < rhs->timestamp;
-            });
+            }); // sort according to timestamp
   for (size_t i = 0; i < data_queue_.size(); ++i) {
     if (data_queue_[i]->ready) {
+      // Not neccessary, sometimes this would cause problem, so just disable it
       // In case the sensor frame name is taken from the depth message check it
       // was written. This only happens for the first message.
       if (data_queue_[i]->data->sensorFrameName().empty()) {
         Transformation T_M_C;
+        // now for this input synchronizer, only the tf transformation is supported
         if (!lookupTransform(data_queue_[i]->timestamp,
                              config_.global_frame_name, used_sensor_frame_name_,
                              &T_M_C)) {
@@ -252,10 +306,12 @@ std::shared_ptr<InputData> InputSynchronizer::getInputData() {
   return result;
 }
 
+// From tf message
 bool InputSynchronizer::lookupTransform(const ros::Time& timestamp,
                                         const std::string& base_frame,
                                         const std::string& child_frame,
-                                        Transformation* transformation) const {
+                                        Transformation* transformation,
+                                        bool use_body_frame) const {
   // Try to lookup the transform for the maximum wait time.
   tf::StampedTransform transform;
   try {
@@ -274,6 +330,12 @@ bool InputSynchronizer::lookupTransform(const ros::Time& timestamp,
   Transformation T_M_C;
   tf::transformTFToKindr(transform, &T_M_C);
   *transformation = T_M_C;
+
+  if (use_body_frame){
+    // LOG(INFO) << T_B_C_;  // the transformation is not imported properly (still identity matrix)
+    *transformation = (*transformation) * T_B_C_.inverse(); // T_wb = T_wc * T_cb
+  } // or we will use the camera frame
+  
   return true;
 }
 

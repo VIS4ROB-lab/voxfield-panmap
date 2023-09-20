@@ -87,6 +87,8 @@ void ClassRaycastIntegrator::updateSubmap(Submap* submap, const InputData& input
   const bool is_free_space_submap =
       submap->getLabel() == PanopticLabel::kFreeSpace;
 
+  int pix_down_rate = config_.ri_config.image_pix_down_rate;
+
   // Deal with the freespace submap 
   if (is_free_space_submap) { // directly skip free space ?
     if (config_.ri_config.skip_free_space_submap)
@@ -97,7 +99,7 @@ void ClassRaycastIntegrator::updateSubmap(Submap* submap, const InputData& input
       submap_points = input.pointCloud();
     } else {
       submap_points = extractSubmapPointCloud(input.vertexMap(), 
-                                              input.idImage(), -1);                                         
+                                              input.idImage(), -1, pix_down_rate);                                         
     } 
     // color is actually not used for free space submap 
     // But we still need it to have the same size as submap_points
@@ -107,11 +109,11 @@ void ClassRaycastIntegrator::updateSubmap(Submap* submap, const InputData& input
     // in sensor(camera)'s frame
     submap_points = extractSubmapPointCloud(input.vertexMap(), 
                                             input.idImage(), 
-                                            submap->getID());
+                                            submap->getID(), pix_down_rate);
     
     submap_colors = extractSubmapColors(input.colorImage(), 
                                         input.idImage(), 
-                                        submap->getID());
+                                        submap->getID(), pix_down_rate);
   }
 
   const bool normal_reliable = submap->getNormalReliability(); // for free-space submap, default true
@@ -126,7 +128,7 @@ void ClassRaycastIntegrator::updateSubmap(Submap* submap, const InputData& input
       int used_id = is_free_space_submap ? -1 : submap->getID();
       submap_normals = extractSubmapNormals(input.normalImage(), 
                                             input.idImage(), 
-                                            used_id);
+                                            used_id, pix_down_rate);
       normal_refine_on = true;      
   }
 

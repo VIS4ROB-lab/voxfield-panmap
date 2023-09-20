@@ -1,7 +1,7 @@
 # KITTI real-world LiDAR dataset
 # General Params
 verbosity: 2
-input_from_bag: true
+input_point_cloud: true
 use_lidar: &use_lidar true 
 filter_moving_objects: true
 use_panoptic_color: true # use semantic (false) or panoptic (true) color for the map visualization
@@ -11,7 +11,8 @@ use_transform_caching: true
 use_tf_transforms: true
 transform_lookup_time: 0.1
 global_frame_name: world
-robot_frame_name: camera_color_left
+robot_frame_name: camera_color_left # fix this later
+sensor_frame_name: camera_color_left
 visualization_interval: -3.0
 robot_mesh_interval: 0.2
 robot_mesh_scale: 0.025
@@ -57,10 +58,10 @@ submap_allocator:
     type: moving_binary_count # select from binary_count, moving_binary_count, fixed_count, variable_count and uncertainty
   
   # Semantic (figure out why can't we keep decreasing these values)
-  small_instance_voxel_size: 0.05
-  medium_instance_voxel_size: 0.08
-  large_instance_voxel_size: 0.2
-  background_voxel_size: 0.25
+  small_instance_voxel_size: 0.03
+  medium_instance_voxel_size: 0.05
+  large_instance_voxel_size: 0.1
+  background_voxel_size: 0.15
   unknown_voxel_size: 0.2
 
   # small_instance_voxel_size: 0.25

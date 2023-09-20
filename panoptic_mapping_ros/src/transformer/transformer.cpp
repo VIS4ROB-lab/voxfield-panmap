@@ -17,7 +17,7 @@ Transformer::Transformer(const ros::NodeHandle& nh,
       timestamp_tolerance_ns_(1000000) {
   nh_private_.param("world_frame", world_frame_, world_frame_);
   nh_private_.param("sensor_frame", sensor_frame_, sensor_frame_);
-  nh_private_.param("use_transform_msg", use_transform_msg_, use_transform_msg_);
+  nh_private_.param("use_transform_msg", use_transform_msg_, use_transform_msg_); // if tf is not used, then use "transform" or "pose" message, default as transform
   // nh_private_.param("robot_mesh_file", robot_mesh_file_, robot_mesh_file_);
 
   const double kNanoSecondsInSecond = 1.0e9;
@@ -52,7 +52,8 @@ Transformer::Transformer(const ros::NodeHandle& nh,
     if (invert_static_tranform) {
       T_B_D_ = T_B_D_.inverse();
     }
-    // LOG(INFO) << "T_B_D:\n" << T_B_D_;
+    
+    LOG(INFO) << "T_B_D:\n" << T_B_D_;
   }
   XmlRpc::XmlRpcValue T_B_C_xml;
   if (nh_private_.getParam("T_B_C", T_B_C_xml)) {
@@ -65,7 +66,8 @@ Transformer::Transformer(const ros::NodeHandle& nh,
     if (invert_static_tranform) {
       T_B_C_ = T_B_C_.inverse();
     }
-      // LOG(INFO) << "T_B_C:\n" << T_B_C_;
+    
+    LOG(INFO) << "T_B_C:\n" << T_B_C_;
   }
 
   if (!use_tf_transforms_) {
@@ -103,7 +105,7 @@ bool Transformer::lookupTransform(const std::string& from_frame,
   if (use_tf_transforms_) {
     return lookupTransformTf(from_frame, to_frame, timestamp, transform, use_body_frame);
   } else {
-    if (use_transform_msg_)
+    if (use_transform_msg_) // use transform msg
       return lookupTransformQueue(timestamp, transform);
     else // use pose msg
       return lookupPoseQueue(timestamp, transform);
@@ -145,9 +147,9 @@ bool Transformer::lookupTransformTf(const std::string& from_frame,
   tf::transformTFToKindr(tf_transform, transform);
 
   if (use_body_frame){
-    *transform = (*transform) * T_B_C_.inverse(); //T_wb = T_wc * T_cb
-  }
-
+    *transform = (*transform) * T_B_C_.inverse(); // T_wb = T_wc * T_cb
+  } // or we will use the camera frame
+  
   //Point translation = transform->getPosition();
   //LOG(INFO) << "drone position: (" << translation(0) << "," << translation(1) << "," << translation(2) << ")";
   return true;

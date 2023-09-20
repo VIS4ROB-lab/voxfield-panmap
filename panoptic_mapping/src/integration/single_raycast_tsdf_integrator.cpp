@@ -81,6 +81,8 @@ void SingleRaycastIntegrator::updateSubmap(Submap* submap, const InputData& inpu
   Pointcloud submap_points;
   Colors submap_colors;
   Pointcloud submap_normals;
+
+  int pix_down_rate = config_.ri_config.image_pix_down_rate;
   
   // directly use the input point cloud if it's available
   // -1 means the whole image here
@@ -89,14 +91,14 @@ void SingleRaycastIntegrator::updateSubmap(Submap* submap, const InputData& inpu
   } else {
     submap_points = extractSubmapPointCloud(input.vertexMap(), 
                                             input.idImage(), 
-                                            -1);                                  
+                                            -1, pix_down_rate);                                  
   } 
   if (input.has(InputData::InputType::kPointColor)) {
     submap_colors = input.pointColor();
   } else {
     submap_colors = extractSubmapColors(input.colorImage(), 
                                         input.idImage(), 
-                                        -1); 
+                                        -1, pix_down_rate); 
   }
 
   // Figure out why mono_flat does not work
@@ -109,7 +111,7 @@ void SingleRaycastIntegrator::updateSubmap(Submap* submap, const InputData& inpu
       input.has(InputData::InputType::kNormalImage)) {
       submap_normals = extractSubmapNormals(input.normalImage(), 
                                             input.idImage(), 
-                                            -1);
+                                            -1, pix_down_rate);
       normal_refine_on = true;      
   }
 

@@ -57,9 +57,9 @@ ProjectiveIntegrator::ProjectiveIntegrator(const Config& config,
   // Request all inputs.
   addRequiredInputs(
       {InputData::InputType::kColorImage, InputData::InputType::kDepthImage,
-       InputData::InputType::kSegmentationImage,
        InputData::InputType::kVertexMap});
   // InputData::InputType::kValidityImage not used
+  // InputData::InputType::kSegmentationImage, // not neccessary
 
   // Setup the interpolators (one for each thread).
   for (int i = 0; i < config_.integration_threads; ++i) {
@@ -115,7 +115,7 @@ void ProjectiveIntegrator::processInput(SubmapCollection* submaps,
   if (config_.use_lidar)
     block_lists = 
       globals_->lidar()->findVisibleBlocks(*submaps, input->T_M_C(),
-                                            max_range_in_image_, true);//only active submap
+                                            max_range_in_image_, true); // only active submap
   else                                           
     block_lists =
       globals_->camera()->findVisibleBlocks(*submaps, input->T_M_C(),
@@ -329,9 +329,9 @@ bool ProjectiveIntegrator::computeSignedDistance(const Point& p_C,
   
   const float distance_to_voxel = p_C.norm();
 
-  // if (distance_to_voxel < min_range_ ||
-  //     distance_to_voxel > max_range_) 
-  //   return false;
+  if (distance_to_voxel < min_range_ ||
+      distance_to_voxel > max_range_) 
+    return false;
 
   // Project the current voxel into the range image, only count points that fall
   // fully into the image.
@@ -347,7 +347,7 @@ bool ProjectiveIntegrator::computeSignedDistance(const Point& p_C,
   }
 
   // Set up the interpolator and compute the signed distance.
-  interpolator->computeWeights(*u, *v, range_image_); // why not directly use the depth_image from input data
+  interpolator->computeWeights(*u, *v, range_image_); // why not directly use the depth_image from input data (here it's Eigen MatrixX)
 
   const float distance_to_surface =
       interpolator->interpolateRange(range_image_);
@@ -520,22 +520,53 @@ void ProjectiveIntegrator::allocateNewBlocks(SubmapCollection* submaps,
   // This method also resets the depth image. (seems to be not very neccessary)
   range_image_.setZero();
   max_range_in_image_ = 0.f;
+  int allocate_pix_interval = 1; // using 2 has problem (too sparse)
 
-  // TODO(py): speed up
+  // TODO(py): speed up , now super time-consuming when the image is large
   // For non-free space submaps
   // Parse through each point to allocate instance + background blocks.
   std::unordered_set<Submap*> touched_submaps; //submaps affected by the current frame
-  for (int v = 0; v < input.depthImage().rows; v++) {
-    for (int u = 0; u < input.depthImage().cols; u++) {
+
+  // NOTE(py): Try to use forEach() to speed up, but failed 
+  // typedef cv::Vec3f Pixel;
+  // // Better to use the foreach function
+  // // TODO: there might be some problem with vertexMap
+  // struct Operator
+  // {
+  //   void operator()(Pixel &pixel, const int * position) const
+  //   {
+  //     // Perform a simple threshold operation
+  //     pixel[0]=0.;
+  //     const Point p_C(pixel[0], pixel[1], pixel[2]);
+
+  //     const float ray_distance = p_C.norm(); 
+  //     if (ray_distance > max_range_ ||
+  //         ray_distance < min_range_) {
+  //       return;
+  //     }
+  //   }
+  // };
+
+  for (int v = 0; v < input.depthImage().rows; v+=allocate_pix_interval) {
+    for (int u = 0; u < input.depthImage().cols; u+=allocate_pix_interval) {
       const cv::Vec3f& vertex = input.vertexMap().at<cv::Vec3f>(v, u);
       const Point p_C(vertex[0], vertex[1], vertex[2]);
 
       //NOTE(py): Why not directly use depth from depth image
       const float ray_distance = p_C.norm(); 
-      range_image_(v, u) = ray_distance;
-      if (ray_distance > max_range_ ||
-          ray_distance < min_range_) {
-        continue;
+      range_image_(v, u) = ray_distance; // needed for interpolation (ray distance is different from the depth (on z))
+      
+      //TOCHECK(py)
+      if (config_.use_lidar) {
+        if (ray_distance > max_range_ ||
+            ray_distance < min_range_) {
+          continue;
+        }
+      } else {
+        if (vertex[2] > max_range_ ||
+            vertex[2] < min_range_) {
+          continue;
+        }
       }
       max_range_in_image_ = std::max(max_range_in_image_, ray_distance);
       const int id = input.idImage().at<int>(v, u); //now it should be already the submap id
@@ -557,6 +588,7 @@ void ProjectiveIntegrator::allocateNewBlocks(SubmapCollection* submaps,
           // layer but was added here for simplicity.
           submap->getClassLayerPtr()->allocateBlockPtrByIndex(block_index);
         }
+        // NOTE(py): why is it super slow here
 
         // If required, check whether the point is on the boundary of a block
         // and allocate the neighboring blocks.
@@ -580,7 +612,7 @@ void ProjectiveIntegrator::allocateNewBlocks(SubmapCollection* submaps,
             }
           }
         }
-        touched_submaps.insert(submap);
+        touched_submaps.insert(submap); // insert into a set
       }
     }
   }
@@ -593,7 +625,7 @@ void ProjectiveIntegrator::allocateNewBlocks(SubmapCollection* submaps,
   // step since it's not too expensive and won't do anything if no new block
   // was allocated.
   for (auto& submap : touched_submaps) {
-    submap->updateBoundingVolume();
+    submap->updateBoundingVolume(); // seems to overestimate the bouding volume
     if (config_.verbosity >= 3) {
       Point center = submap->getBoundingVolumePtr()->getCenter();
       ROS_INFO("Submap [%d] center: (%f,%f,%f), radius: %f, voxel_size: %f",

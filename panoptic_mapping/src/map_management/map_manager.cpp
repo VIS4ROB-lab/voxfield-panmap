@@ -85,7 +85,7 @@ void MapManager::pruneActiveBlocks(SubmapCollection* submaps) {
   // Process all active instance and background submaps.
   auto t1 = std::chrono::high_resolution_clock::now();
   Timer timer("umap_management/prune_active_blocks");
-  //std::stringstream info;
+  // std::stringstream info;
   // TODO(py): try to use multi-thread for each submap here
   
   std::vector<int> submaps_to_check; // id

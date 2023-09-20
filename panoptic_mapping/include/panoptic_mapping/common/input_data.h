@@ -4,8 +4,11 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <sstream>
+#include <iomanip>
 
 #include <opencv2/core/mat.hpp>
+#include <opencv2/imgcodecs.hpp> 
 
 #include "panoptic_mapping/common/common.h"
 
@@ -129,6 +132,42 @@ class InputData {
   }
   void setSubmapIDList(const std::vector<int>& submap_id_list) {
     submap_ids_ = submap_id_list;
+  }
+
+  bool backupData(std::string output_base_path){
+
+    CHECK(!output_base_path.empty());
+
+    // this is only used for the postprocessed cka_fruit dataset, comment them later (very specific, with a 0.1 frame interval)
+    int cur_frame = int(std::round(timestamp()/0.1));
+
+    std::stringstream ss;
+    ss << std::setw(5) << std::setfill('0') << cur_frame;
+
+    std::string filename_base = ss.str();
+    
+    // std::string filename_base = std::to_string(timestamp());
+    // std::cout << "Output:" << filename_base;
+    
+    std::string tracked_image_path = output_base_path + "/" + filename_base + "_submap_id.png";
+    cv::imwrite(tracked_image_path, idImage());
+    
+    std::string depth_image_path = output_base_path + "/" + filename_base + "_depth.tiff";
+    //check the depth image's format
+    //std::cout << depthImage();
+    
+    cv::imwrite(depth_image_path, depthImage());
+
+    std::string color_image_path = output_base_path + "/" + filename_base + "_color.png";
+    cv::imwrite(color_image_path, colorImage());
+
+    std::string cam_pose_path = output_base_path + "/" + filename_base + "_pose.txt";
+    std::ofstream txt_out(cam_pose_path);
+    if (!txt_out)
+      return false;
+    txt_out << T_M_C();
+    txt_out.close();
+    return true;
   }
 
   // Access.

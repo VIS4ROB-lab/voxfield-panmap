@@ -68,6 +68,9 @@ Submap* SemanticSubmapAllocator::allocateSubmap(SubmapCollection* submaps,
     }
   }
 
+  if (config_.verbosity >= 4)
+    ROS_INFO("allocate submap %d with the voxel size %f m", input_id, config.voxel_size);
+
   // Set the truncation distance.
   config.truncation_distance = config_.truncation_distance;
   if (config.truncation_distance < 0.f) {

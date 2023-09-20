@@ -1,7 +1,7 @@
 # Arche real-world drone LiDAR dataset
 # General Params
 verbosity: 2
-input_from_bag: true
+input_point_cloud: true
 use_lidar: &use_lidar true 
 use_range_image: &use_range_image true
 estimate_normal: &use_normal true
@@ -27,8 +27,8 @@ lidar: # ouster-64 (change according to the intrinsic.yaml)
   height: 64
   fov_up: 16.6  # deg
   fov_down: -16.6
-  max_range: &max_range 40.0  # m
-  min_range: &min_range 1.0
+  max_range: &max_range 45.0  # m
+  min_range: &min_range 1.5
   smooth_thre_ratio: 0.1 # normal estimation threshold
 
 id_tracker:
@@ -43,8 +43,8 @@ id_tracker:
   use_color: false
 
   # map allocator
-  voxel_size: 0.2
-  truncation_distance: -2 # -3
+  voxel_size: 0.15
+  truncation_distance: -3
   voxels_per_side: 16
 
   # freespace esdf mapping
@@ -98,7 +98,7 @@ visualization:
   submaps:
     type: single_tsdf  # submaps, single_tsdf
     verbosity: 1
-    color_mode: height # submaps, instances, color, normals, height, classes, change, classification (means the fusion confidence)
+    color_mode: normals # submaps, instances, color, normals, height, classes, change, classification (means the fusion confidence)
     visualization_mode: all  # all, active, active_only, inactive, persistent
     submap_color_discretization: 30 # be same as the image's
     visualize_mesh: true

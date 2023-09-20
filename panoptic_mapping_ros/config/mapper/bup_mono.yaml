@@ -1,0 +1,116 @@
+# BUP RGBD dataset
+# General Params
+verbosity: 4
+input_point_cloud: false
+use_lidar: &use_lidar false 
+use_range_image: &use_range_image true
+estimate_normal: &use_normal false
+use_threadsafe_submap_collection: false
+use_transform_caching: true
+use_tf_transforms: true
+use_transform_msg: false # use "transform" or "pose" rosmsg
+transform_lookup_time: 0.1
+global_frame_name: world
+robot_frame_name: depth_camera
+robot_mesh_interval: 0.05
+robot_mesh_scale: 3.0
+visualization_interval: -5.0
+data_logging_interval: 0.0
+print_timing_interval: -1.0
+esdf_update_interval: 0.0
+max_input_queue_length: 1000
+ros_spinning_threads: 12
+msg_latency_s: 0.3
+
+camera:  # this is actually for camera 2
+  verbosity: 1
+  width: 720 # Px
+  height: 1280
+  vx: 361.7205505371094  
+  vy: 643.212158203125 # 636.787841796875 
+  fx: 919.456298828125
+  fy: 920.6524047851562
+  depth_unit: 1.
+  max_range: &max_range 1.1  # m
+  min_range: &min_range 0.5
+  smooth_thre_ratio: 0.1 
+
+id_tracker:
+  type: single_tsdf
+  verbosity: 1
+  
+  use_lidar: *use_lidar
+  use_range_image: *use_range_image
+  use_class_layer: false
+  use_instance_classification: false
+
+  # map allocator
+  voxel_size: 0.01
+  truncation_distance: -3.0
+  voxels_per_side: 16
+
+tsdf_integrator:  # different from those in voxblox
+  # select from class_projective, class_raycast, class_adaptive, single_projective, single_raycast, projective, raycast, adaptive
+  type: single_projective
+  verbosity: 2    
+
+  use_lidar: *use_lidar
+  use_range_image: *use_range_image   
+
+  # Common
+  apply_normal_refine_freespace: *use_normal # use Voxfield non-projective fusion on not
+  curve_assumption: true
+  reliable_band_ratio: 4.0
+  reliable_normal_ratio_thre: 0.05
+  use_weight_dropoff: true
+  weight_dropoff_epsilon: -1.0 # if negative, means -k * voxel_size
+  weight_reduction: true
+  weight_reduction_exp: 2.0
+  max_weight: 10000
+
+  # Projective
+  interpolation_method: adaptive  # nearest, bilinear, adaptive
+
+  # Raycasting
+  behind_surface_reliable_band: false
+  merged_raycasting: true # use "merged" raycast or not
+  free_space_multi_threads: true # use multi-thread raycasting for the freespace submap independently
+  freespace_carving_enabled: true # necessary for dynamic mapping, with a bit sacrifice of the computation time
+  max_ray_length_m: *max_range
+  min_ray_length_m: *min_range
+  
+visualization:  
+  submaps:
+    type: single_tsdf  # submaps, single_tsdf
+    verbosity: 1
+    color_mode: color # submaps, instances, color, normals, classes, change, classification
+    visualization_mode: all  # all, active, active_only, inactive, persistent
+    submap_color_discretization: 30
+    visualize_mesh: true
+    visualize_tsdf_blocks: true
+    visualize_occ_voxels: true
+    visualize_slice: true
+    visualize_free_space_tsdf: true
+    visualize_free_space_esdf: true
+    visualize_free_space_gsdf: true
+    visualize_bounding_volumes: true
+    include_free_space: true
+    slice_height: 0.5
+    occ_voxel_size_ratio: 0.866
+  
+  planning:
+    verbosity: 1
+    visualize_slice: true
+    slice_resolution: 0.1
+    slice_height: -0.5
+  
+  tracking:
+    verbosity: 1
+    visualize_tracking: true
+
+# Available services:
+# rosservice call /panoptic_mapper/save_map "file_path: '/path/to/xxx.panmap'"
+# rosservice call /panoptic_mapper/save_esdf_map "file_path: '/path/to/xxx..esdf'" 
+# rosservice call /panoptic_mapper/save_mesh "file_path: '/path/to/xxx'" # get ply
+# rosservice call /panoptic_mapper/set_visualization_mode "color_mode: 'color'"
+# rosservice call /panoptic_mapper/set_visualization_mode "visualization_mode: 'active'"

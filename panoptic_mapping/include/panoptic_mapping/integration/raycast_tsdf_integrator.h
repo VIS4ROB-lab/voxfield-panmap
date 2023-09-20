@@ -101,6 +101,8 @@ class RaycastIntegrator : public TsdfIntegratorBase {
 
     bool skip_free_space_submap = false; // just for debugging, include the free space submap or not
 
+    int image_pix_down_rate = 1; // if the input is image, then downsampling the image by this ratio to generate the point cloud
+
     Config() { setConfigName("RaycastTsdfIntegrator"); }
 
    protected:
@@ -144,13 +146,13 @@ class RaycastIntegrator : public TsdfIntegratorBase {
                                    const float weight) const override;
 
   Pointcloud extractSubmapPointCloud(const cv::Mat& vertex_map,
-                                     const cv::Mat& id_image, int id) const;
+                                     const cv::Mat& id_image, int id, int down_rate = 1) const;
 
   Pointcloud extractSubmapNormals(const cv::Mat& normal_image,
-                                  const cv::Mat& id_image, int id) const;
+                                  const cv::Mat& id_image, int id, int down_rate = 1) const;
 
   Colors extractSubmapColors(const cv::Mat& color_image,
-                            const cv::Mat& id_image, int id) const;
+                            const cv::Mat& id_image, int id, int down_rate = 1) const;
 
   float getVoxelWeight(const Point& point_C) const; // mainly used for "merged" raycasting   
 

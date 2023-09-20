@@ -16,9 +16,9 @@ class LabelDataConverter:
 
         for counting in range(len(labelscan)):
 
-            sem_id = int(labelscan[counting]) & 0xFFFF #lower 16 bit
+            sem_id = int(labelscan[counting]) & 0xFFFF # lower 16 bit
             rgb, rgb_arr = self.get_rgb(sem_id)
-            instance_id = int(labelscan[counting]) >> 16 #higher 16 bit
+            instance_id = int(labelscan[counting]) >> 16 # higher 16 bit
             #rgb = self.get_random_rgb(instance_id)
             
             # print("Sem label:", sem_id, "Ins label:", instance_id, "Color:", hex(rgb))

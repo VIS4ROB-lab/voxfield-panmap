@@ -19,11 +19,12 @@ void SingleTSDFTracker::Config::checkParams() const {
 void SingleTSDFTracker::Config::setupParamsAndPrinting() {
   setupParam("verbosity", &verbosity);
   setupParam("submap", &submap);
+  setupParam("renderer", &renderer);
   setupParam("use_lidar", &use_lidar);
   setupParam("use_range_image", &use_range_image);
   setupParam("use_detectron", &use_detectron);
   setupParam("use_instance_classification", &use_instance_classification);
-  setupParam("renderer", &renderer);
+  setupParam("rotate_image", &rotate_image); // rotate the image for visualization
 }
 
 SingleTSDFTracker::SingleTSDFTracker(const Config& config,
@@ -38,9 +39,9 @@ SingleTSDFTracker::SingleTSDFTracker(const Config& config,
     if (config_.submap.useClassLayer()) {
       addRequiredInput(InputData::InputType::kSegmentationImage);
     }
-    if (config_.use_detectron) {
-      addRequiredInput(InputData::InputType::kDetectronLabels);
-    }
+    // if (config_.use_detectron) {
+    //   addRequiredInput(InputData::InputType::kDetectronLabels);
+    // }
   }
 }
 
@@ -72,15 +73,23 @@ void SingleTSDFTracker::processInput(SubmapCollection* submaps,
     cv::Mat depth_vis = renderer_.colorGrayImage(input->depthImage(), max_depth);
     cv::Mat normal_vis;
     
+    cv::Mat color_vis = input->colorImage().clone();
+    if (config_.rotate_image) {
+      cv::rotate(depth_vis, depth_vis, cv::ROTATE_90_CLOCKWISE);
+      cv::rotate(color_vis, color_vis, cv::ROTATE_90_CLOCKWISE);
+    }
+
     // visualize image 
-    visualize(input->colorImage(), "color"); //original color
+    visualize(color_vis, "color"); //original color
     visualize(depth_vis, "depth"); // you need to change it also to CV_U8C3, now it's CV_F32C1
     
     if (input->has(InputData::InputType::kNormalImage)){
       normal_vis = renderer_.colorFloatImage(input->normalImage());
+      if (config_.rotate_image)
+        cv::rotate(normal_vis, normal_vis, cv::ROTATE_90_CLOCKWISE);
       visualize(normal_vis, "normal"); // you need to change it also to CV_U8C3, now it's CV_F32C3
     }
-
+    color_vis.release();
     depth_vis.release();
     normal_vis.release();
     vis_img_timer.Stop();

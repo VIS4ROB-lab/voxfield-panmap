@@ -1,7 +1,10 @@
 <launch>
 <!-- ============ Arguments ============ -->
-  <arg name="base_path" default="/media/yuepan/SeagateNew/1_data/flat_dataset/run1"/>
-  <arg name="play_rate" default="1"/>
+  <arg name="base_path" default="/media/yuepan/DATA/1_data/flat_dataset/run2"/>
+  <arg name="output_dir" default="/media/yuepan/DATA/1_data/flat_dataset/rosbag"/>
+  <!-- <arg name="base_path" default="/media/yuepan/DATA/1_data/CKA/CKA_sweet_pepper/BUP20/CKA_sweet_pepper_2020_summer/20200924/run_row4"/>
+  <arg name="output_dir" default="/media/yuepan/DATA/1_data/CKA/CKA_sweet_pepper/BUP20/CKA_sweet_pepper_2020_summer/20200924/rosbag"/> -->
+  <arg name="play_rate" default="10"/> 
   <arg name="wait" default="false"/>
   <arg name="namespace" default="data"/>
   <arg name="use_detectron" default="false"/>
@@ -11,7 +14,7 @@
   <arg name="record_data" default="false"/>
     
 <!-- ============ Play Data ============ -->
-   <node pkg="panoptic_mapping_utils" type="flat_data_player.py" name="flat_data_player" output="screen">
+  <node pkg="panoptic_mapping_utils" type="flat_data_player.py" name="flat_data_player" output="screen">
     <param name="data_path" value="$(arg base_path)" /> 
     <param name="play_rate" value="$(arg play_rate)" /> 
     <param name="use_detectron" value="$(arg use_detectron)" /> 
@@ -28,9 +31,14 @@
   </node>
 
   <!-- Record a rosbag of the visualization-->
-  <!-- node pkg="rosbag" type="record" name="rosbag" if="$(arg record_data)"
-       args="record -o $(arg output_dir)/ /rosout /clock /tf /tf_static /airsim_drone/ground_truth/pose /airsim_drone/Depth_cam /airsim_drone/Scene_cam /airsim_drone/Id_corrected /airsim_drone/Pointcloud"/-->  
+ 
+  <node pkg="rosbag" type="record" name="rosbag" if="$(arg record_data)" args="record -o $(arg output_dir)/ /rosout /clock /tf /tf_static /data/color_image /data/depth_image /data/segmentation_image /data/pose"/> 
 
+
+  <!-- <node pkg="rosbag" type="record" name="rosbag" if="$(arg record_data)"
+       args="record -o $(arg output_dir)/ /rosout /clock /tf /tf_static /airsim_drone/ground_truth/pose /airsim_drone/Depth_cam /airsim_drone/Scene_cam /airsim_drone/Id_corrected /airsim_drone/Pointcloud">
+       args="record -o $(arg output_dir)/ /rosout /clock /tf* /data*"--> 
+  
   <!-- RVIZ Visualization -->
   <!-- node type="rviz" name="rviz" pkg="rviz" args="-d $(find panoptic_mapping_utils)/config/vis_flat.rviz"/-->
 

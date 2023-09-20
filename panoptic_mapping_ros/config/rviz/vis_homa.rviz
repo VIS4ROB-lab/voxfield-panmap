@@ -1,0 +1,406 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 138
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Status1
+        - /Panoptic Mapper1
+        - /Panoptic Mapper1/Mesh1/Visible1
+        - /Panoptic Mapper1/Tracking1
+      Splitter Ratio: 0.5823529362678528
+    Tree Height: 1628
+  - Class: rviz/Selection
+    Name: Selection
+  - Class: rviz/Tool Properties
+    Expanded:
+      - /2D Pose Estimate1
+      - /2D Nav Goal1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.5886790156364441
+  - Class: rviz/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz/Time
+    Name: Time
+    SyncMode: 0
+    SyncSource: Color
+Preferences:
+  PromptSaveOnExit: true
+Toolbars:
+  toolButtonStyle: 2
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 1
+      Class: rviz/Axes
+      Enabled: false
+      Length: 1
+      Name: Origin
+      Radius: 0.05000000074505806
+      Reference Frame: <Fixed Frame>
+      Show Trail: false
+      Value: false
+    - Class: rviz/Marker
+      Enabled: false
+      Marker Topic: /path_visualizer/path
+      Name: Path
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: false
+    - Class: rviz/Group
+      Displays:
+        - Class: voxblox_rviz_plugin/VoxbloxMultiMesh
+          Enabled: true
+          Name: Mesh
+          Queue Size: 10
+          Toggle Visibility All: false
+          Topic: /panoptic_mapper/visualization/submaps/mesh
+          Unreliable: false
+          Value: true
+          Visible:
+            Value: true
+            single_tsdf: true
+        - Alpha: 0.5
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: FreeSpaceTsdf
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 5
+          Size (m): 0.05000000074505806
+          Style: Flat Squares
+          Topic: /panoptic_mapper/visualization/submaps/free_space_tsdf
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Alpha: 0.5
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: FreeSpaceEsdf
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.05000000074505806
+          Style: Flat Squares
+          Topic: /panoptic_mapper/visualization/submaps/free_space_esdf
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Alpha: 0.5
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: Intensity
+          Decay Time: 0
+          Enabled: false
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Min Color: 0; 0; 0
+          Name: FreeSpaceGsdf
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.05000000074505806
+          Style: Flat Squares
+          Topic: /panoptic_mapper/visualization/submaps/free_space_gsdf
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /panoptic_mapper/visualization/submaps/bounding_volumes
+          Name: BoundingVolumes
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /panoptic_mapper/visualization/submaps/tsdf_blocks
+          Name: TsdfBlocks
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/MarkerArray
+          Enabled: false
+          Marker Topic: /panoptic_mapper/visualization/submaps/occ_voxels
+          Name: OccVoxels
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/Marker
+          Enabled: false
+          Marker Topic: /panoptic_mapper/visualization/planning/planning_slice
+          Name: PlanningSlice
+          Namespaces:
+            {}
+          Queue Size: 100
+          Value: false
+        - Class: rviz/Group
+          Displays:
+            - Class: rviz/Image
+              Enabled: true
+              Image Topic: /panoptic_mapper/visualization/tracking/color
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Color
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: true
+            - Class: rviz/Image
+              Enabled: true
+              Image Topic: /panoptic_mapper/visualization/tracking/input
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Instance Segmentation
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: true
+            - Class: rviz/Image
+              Enabled: false
+              Image Topic: /panoptic_mapper/visualization/tracking/rendered
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Rendered
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: false
+            - Class: rviz/Image
+              Enabled: true
+              Image Topic: /panoptic_mapper/visualization/tracking/depth
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Depth
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: true
+            - Class: rviz/Image
+              Enabled: true
+              Image Topic: /panoptic_mapper/visualization/tracking/tracked
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Tracked SubmapID
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: true
+            - Class: rviz/Image
+              Enabled: false
+              Image Topic: /panoptic_mapper/visualization/tracking/normal
+              Max Value: 1
+              Median window: 5
+              Min Value: 0
+              Name: Normal
+              Normalize Range: true
+              Queue Size: 2
+              Transport Hint: raw
+              Unreliable: false
+              Value: false
+          Enabled: true
+          Name: Tracking
+      Enabled: true
+      Name: Panoptic Mapper
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /Robot_mesh
+      Name: RGB-D Camera
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+        base_link:
+          Value: true
+        camera1_aligned_depth_to_color_frame:
+          Value: true
+        camera1_color_optical_frame:
+          Value: true
+        camera1_link:
+          Value: true
+        camera2_aligned_depth_to_color_frame:
+          Value: true
+        camera2_color_optical_frame:
+          Value: true
+        camera2_link:
+          Value: true
+        camera3_aligned_depth_to_color_frame:
+          Value: true
+        camera3_color_optical_frame:
+          Value: true
+        camera3_link:
+          Value: true
+        odom:
+          Value: true
+        platform_base:
+          Value: true
+        submap_0:
+          Value: true
+      Marker Alpha: 1
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: false
+      Tree:
+        odom:
+          base_link:
+            camera1_link:
+              camera1_aligned_depth_to_color_frame:
+                camera1_color_optical_frame:
+                  {}
+            camera2_link:
+              camera2_aligned_depth_to_color_frame:
+                camera2_color_optical_frame:
+                  {}
+            camera3_link:
+              camera3_aligned_depth_to_color_frame:
+                camera3_color_optical_frame:
+                  {}
+            platform_base:
+              {}
+          submap_0:
+            {}
+      Update Interval: 0
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 255; 255; 255
+    Default Light: true
+    Fixed Frame: odom
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/FocusCamera
+    - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+      Theta std deviation: 0.2617993950843811
+      Topic: /initialpose
+      X std deviation: 0.5
+      Y std deviation: 0.5
+    - Class: rviz/SetGoal
+      Topic: /move_base_simple/goal
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 11.332897186279297
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Field of View: 0.7853981852531433
+      Focal Point:
+        X: 4.4370527267456055
+        Y: 1.207031488418579
+        Z: -0.5922958850860596
+      Focal Shape Fixed Size: false
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.2353983223438263
+      Target Frame: <Fixed Frame>
+      Yaw: 4.708583354949951
+    Saved: ~
+Window Geometry:
+  Color:
+    collapsed: false
+  Depth:
+    collapsed: false
+  Displays:
+    collapsed: false
+  Height: 2032
+  Hide Left Dock: false
+  Hide Right Dock: false
+  Instance Segmentation:
+    collapsed: false
+  Normal:
+    collapsed: false
+  QMainWindow State: 000000ff00000000fd00000004000000000000026f00000754fc0200000019fb0000001200530065006c0065006300740069006f006e000000003d0000009b000000b000fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000b0fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb0000000a0049006e00700075007403000001b000000299000000b7000000a1fc0000006e000007540000018200fffffffa000000020100000003fb0000000a0049006d00610067006503000001b0000001fb000000b70000009efb0000000e004e006f0072006d0061006c007302000001c80000025800000280000001e0fb000000100044006900730070006c006100790073010000000000000156000001f700fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000a0049006d00610067006500000001de000000a60000000000000000fb0000000a0049006d0061006700650000000246000000d00000000000000000fb0000001e0055006e0072006500660069006e0064006500200049006e007000750074020000003b0000025800000280000001e0fb0000000a0049006d00610067006500000002f1000000ad0000000000000000fb0000000a0049006d00610067006501000002b50000006f0000000000000000fb0000000a0049006d006100670065010000032a000000740000000000000000fb0000000a0043006f006c006f0072030000031d0000049f000001f8000003a1fb0000001000520065006e006400650072006500640200000a1f0000049b00000280000001e0fb0000000a0049006d00610067006503000001b100000179000000f6000000d2fb0000000a004400650070007400680300000518000004a0000001fa000003a0fb0000000a0049006d00610067006500000002d8000000c80000000000000000fb0000000a0049006d00610067006503000001b0000001f9000000b60000009ffb0000000c004e006f0072006d0061006c02000006c00000051200000280000001e0fb000000200054007200610063006b006500640020005300750062006d0061007000490044030000090e000004a2000002040000039ffb0000001000500061006e006f0070007400690063030000086b000005120000019700000326fb0000002a0049006e007300740061006e006300650020005300650067006d0065006e0074006100740069006f006e0300000714000004a2000001f80000039e000000010000015f00000754fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000006e000007540000013200fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000020000073d000000eefc0100000006fb0000000e0054007200610063006b0065006403000001b100000339000000b8000000a1fb0000000a0043006f006c006f007200000000000000013c0000000000000000fb0000000a0049006e00700075007400000001420000012b0000000000000000fb0000001000520065006e006400650072006500640000000273000000770000000000000000fb0000000e0054007200610063006b0065006400000002f0000004550000000000000000fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073d0000003efc0100000002fb0000000800540069006d006500000000000000073d0000077d00fffffffb0000000800540069006d0065010000000000000450000000000000000000000bf50000075400000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Rendered:
+    collapsed: false
+  Selection:
+    collapsed: false
+  Time:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Tracked SubmapID:
+    collapsed: false
+  Views:
+    collapsed: false
+  Width: 3696
+  X: 144
+  Y: 54

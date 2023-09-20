@@ -1,7 +1,7 @@
 # Semantic USL real-world LiDAR dataset
 # General Params
 verbosity: 2
-input_from_bag: true
+input_point_cloud: true
 use_lidar: &use_lidar true 
 filter_moving_objects: true
 use_panoptic_color: true # use semantic (false) or panoptic (true) color for the map visualization

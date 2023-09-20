@@ -175,6 +175,8 @@ class Submap {
    */
   void updateMesh(bool only_updated_blocks = true, bool use_class_layer = true);
 
+  void saveMesh(std::string folder_path);
+
   void updateOccFromTsdf(bool clear_updated_flag_occ = true, bool in_batch = false) const;
 
   void updateEsdfFromOcc(bool clear_updated_flag_esdf = true) const;
@@ -272,6 +274,7 @@ class Submap {
   PanopticLabel label_ = PanopticLabel::kUnknown;
   std::string name_ = "Unknown";
   bool normal_reliable_ = true;
+  int plant_id_ = -1;       // to which plant does it belong (only used for PhenoRob stuffs)
 
   bool countable_;  // can have instance id or not
 

@@ -838,10 +838,10 @@ void AdaptiveIntegrator::allocateNewBlocks(SubmapCollection* submaps,
 }
 
 Pointcloud AdaptiveIntegrator::extractSubmapPointCloud(const cv::Mat& vertex_map,
-                                                      const cv::Mat& id_image, int id) const {
+                                                      const cv::Mat& id_image, int id, int down_rate) const {
   Pointcloud submap_points;
-  for (int v = 0; v < id_image.rows; v++) {
-    for (int u = 0; u < id_image.cols; u++) {
+  for (int v = 0; v < id_image.rows; v+=down_rate) {
+    for (int u = 0; u < id_image.cols; u+=down_rate) {
       // id == -1 means we want to use the whole point cloud 
       if (id_image.at<int>(v, u) == id || id == -1) { 
         cv::Vec3f vertex = vertex_map.at<cv::Vec3f>(v, u);
@@ -854,10 +854,10 @@ Pointcloud AdaptiveIntegrator::extractSubmapPointCloud(const cv::Mat& vertex_map
 }
 
 Colors AdaptiveIntegrator::extractSubmapColors(const cv::Mat& color_image,
-                                              const cv::Mat& id_image, int id) const {
+                                              const cv::Mat& id_image, int id, int down_rate) const {
   Colors submap_colors;
-  for (int v = 0; v < id_image.rows; v++) {
-    for (int u = 0; u < id_image.cols; u++) {
+  for (int v = 0; v < id_image.rows; v+=down_rate) {
+    for (int u = 0; u < id_image.cols; u+=down_rate) {
       // id == -1 means we want to use the whole point cloud 
       if (id_image.at<int>(v, u) == id || id == -1) {
         cv::Vec3b color = color_image.at<cv::Vec3b>(v, u); // BGR
@@ -870,10 +870,10 @@ Colors AdaptiveIntegrator::extractSubmapColors(const cv::Mat& color_image,
 }
 
 Pointcloud AdaptiveIntegrator::extractSubmapNormals(const cv::Mat& normal_image,
-                                                  const cv::Mat& id_image, int id) const {
+                                                  const cv::Mat& id_image, int id, int down_rate) const {
   Pointcloud submap_normals;
-  for (int v = 0; v < id_image.rows; v++) {
-    for (int u = 0; u < id_image.cols; u++) {
+  for (int v = 0; v < id_image.rows; v+=down_rate) {
+    for (int u = 0; u < id_image.cols; u+=down_rate) {
       // id == -1 means we want to use the whole point cloud 
       if (id_image.at<int>(v, u) == id || id == -1) {
         cv::Vec3f vertex = normal_image.at<cv::Vec3f>(v, u);

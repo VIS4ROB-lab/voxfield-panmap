@@ -1,7 +1,7 @@
 # V4RL Vicon room dataset
 # General Params
 verbosity: 4
-input_from_bag: true
+input_point_cloud: true
 use_lidar: &use_lidar false 
 use_range_image: &use_range_image true
 estimate_normal: &use_normal false

@@ -191,13 +191,13 @@ class AdaptiveIntegrator : public TsdfIntegratorBase {
                            const float weight) const override;
 
   Pointcloud extractSubmapPointCloud(const cv::Mat& vertex_map,
-                                     const cv::Mat& id_image, int id) const;
+                                     const cv::Mat& id_image, int id, int down_rate = 1) const;
 
   Pointcloud extractSubmapNormals(const cv::Mat& normal_image,
-                                  const cv::Mat& id_image, int id) const;
+                                  const cv::Mat& id_image, int id, int down_rate = 1) const;
 
   Colors extractSubmapColors(const cv::Mat& color_image,
-                             const cv::Mat& id_image, int id) const;
+                             const cv::Mat& id_image, int id, int down_rate = 1) const;
 
   // Thread safe.
   inline bool isPointValid(const Point& point_C, const bool freespace_point,

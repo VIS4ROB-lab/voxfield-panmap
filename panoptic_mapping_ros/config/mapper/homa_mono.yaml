@@ -1,0 +1,142 @@
+# Horticultural PathBot RGBD dataset
+# General Params
+verbosity: 4
+input_point_cloud: false
+use_lidar: &use_lidar false 
+use_range_image: &use_range_image true
+filter_depth_image: false
+estimate_normal: &use_normal false
+use_threadsafe_submap_collection: false # if true, much slower but more stable
+use_transform_caching: true 
+use_tf_transforms: true
+use_transform_msg: false # use "transform" or "pose" rosmsg
+transform_lookup_time: 0.5
+global_frame_name: odom
+robot_frame_name: camera2_color_optical_frame
+sensor_frame_name: camera2_color_optical_frame 
+robot_mesh_scale: 3.0
+robot_mesh_interval: 0.0
+visualization_interval: -2.0
+data_logging_interval: 0.0
+print_timing_interval: -1.0
+esdf_update_interval: 0.0
+max_input_queue_length: 1000
+ros_spinning_threads: 12
+msg_latency_s: 0.2
+
+camera:
+  verbosity: 1
+  width: 1280 # Px
+  height: 720
+  vx: 643.212158203125
+  vy: 361.7205505371094
+  fx: 920.6524047851562
+  fy: 919.456298828125
+  depth_unit: 1000.
+  max_range: &max_range 1.3  # m
+  min_range: &min_range 0.5
+  smooth_thre_ratio: 0.1 
+
+  # camera 1 (color and depth): 916.4022216796875, 0.0, 659.4613647460938, 0.0, 916.4210205078125, 374.5310974121094, 0.0, 0.0, 1.0
+  # camera 2 (color and depth): 920.6524047851562, 0.0, 643.212158203125, 0.0, 919.456298828125, 361.7205505371094, 0.0, 0.0, 1.0 
+  # camera 3 (color and depth): 916.903076171875,  0.0, 637.0918579101562, 0.0, 915.8038330078125, 359.5274963378906, 0.0, 0.0, 1.0
+
+
+id_tracker:
+  type: single_tsdf
+  verbosity: 1
+  
+  use_lidar: *use_lidar
+  use_range_image: *use_range_image
+  use_class_layer: false
+  use_instance_classification: false
+  integration_threads: 1 # slower, but can avoid SegFault
+  rotate_image: true
+
+  # map allocator
+  voxel_size: 0.01
+  truncation_distance: -3
+  voxels_per_side: 8
+
+  # freespace esdf mapping
+  esdf_integrator_name: voxfield # select from voxblox, voxfield, fiesta and edt
+  esdf_fiesta_patch: true
+  esdf_fiesta_break: false
+  finer_esdf_on: true
+  fixed_band_esdf_on: false
+  occ_voxel_size_ratio: &occ_voxel_size_ratio 0.866
+  #tsdf_min_weight: &tsdf_min_weight 0.001
+  fixed_band_ratio: 2.0
+  gradient_sign: 1.0
+  esdf_max_distance_m: 2.0
+  esdf_local_offset_x: 30
+  esdf_local_offset_y: 30
+  esdf_local_offset_z: 10
+
+tsdf_integrator:  # different from those in voxblox
+  # select from class_projective, class_raycast, class_adaptive, projective, raycast, adaptive, single_projective (the original problem is that it need the semantic image as the mandotory input, which is wrong), single_raycast
+  type: single_projective
+  verbosity: 2    
+
+  use_lidar: *use_lidar   
+  use_range_image: *use_range_image
+
+  # Common
+  apply_normal_refine_freespace: *use_normal # use Voxfield non-projective fusion on not
+  curve_assumption: true
+  behind_surface_reliable_band: true
+  reliable_band_ratio: 3.0
+  reliable_normal_ratio_thre: 0.1
+  use_weight_dropoff: true
+  weight_dropoff_epsilon: -2.0 # if negative, means -k * voxel_size
+  weight_reduction: true
+  weight_reduction_exp: 2.0
+  max_weight: 50000
+
+  # Projective
+  interpolation_method: adaptive  # nearest, bilinear, adaptive
+
+  # Raycasting
+  merged_raycasting: true # use "merged" raycast or not
+  free_space_multi_threads: true # use multi-thread raycasting for the freespace submap independently
+  freespace_carving_enabled: true
+  max_ray_length_m: *max_range
+  min_ray_length_m: *min_range
+  image_pix_down_rate: 3
+ 
+visualization:  
+  submaps:
+    type: single_tsdf  # submaps, single_tsdf
+    verbosity: 1
+    color_mode: color # submaps, instances, color, normals, classes, change, classification
+    visualization_mode: all  # all, active, active_only, inactive, persistent
+    submap_color_discretization: 30
+    visualize_mesh: true
+    visualize_tsdf_blocks: true
+    visualize_occ_voxels: true
+    visualize_slice: true
+    visualize_free_space_tsdf: true
+    visualize_free_space_esdf: true
+    visualize_free_space_gsdf: true
+    visualize_bounding_volumes: true
+    include_free_space: true
+    slice_height: 0.3
+    occ_voxel_size_ratio: *occ_voxel_size_ratio
+    #tsdf_min_weight: *tsdf_min_weight
+
+  planning:
+    verbosity: 1
+    visualize_slice: true
+    slice_resolution: 0.1
+    slice_height: 1.0
+  
+  tracking: # images
+    verbosity: 1
+    visualize_tracking: true
+
+# Available services:
+# rosservice call /panoptic_mapper/save_map "file_path: '/path/to/xxx.panmap'"
+# rosservice call /panoptic_mapper/save_esdf_map "file_path: '/path/to/xxx..esdf'" 
+# rosservice call /panoptic_mapper/save_mesh "file_path: '/path/to/xxx'" # get ply
+# rosservice call /panoptic_mapper/set_visualization_mode "color_mode: 'color'"
+# rosservice call /panoptic_mapper/set_visualization_mode "visualization_mode: 'active'"

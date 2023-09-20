@@ -26,6 +26,7 @@ void RaycastIntegrator::Config::checkParams() const {
   if (use_weight_dropoff) {
     checkParamNE(weight_dropoff_epsilon, 0.f, "weight_dropoff_epsilon");
   }
+  checkParamGT(image_pix_down_rate, 0, "image_pix_down_rate");
 }
 
 //TODO(py): update these config params
@@ -55,6 +56,7 @@ void RaycastIntegrator::Config::setupParamsAndPrinting() {
   setupParam("reliable_band_ratio", &reliable_band_ratio);
   setupParam("reliable_normal_ratio_thre", &reliable_normal_ratio_thre);
   setupParam("skip_free_space_submap", &skip_free_space_submap);
+  setupParam("image_pix_down_rate", &image_pix_down_rate);
 }
 
 RaycastIntegrator::RaycastIntegrator(const Config& config,
@@ -477,10 +479,10 @@ float RaycastIntegrator::computeSignedDistance(const Point& origin,
 }
 
 Pointcloud RaycastIntegrator::extractSubmapPointCloud(const cv::Mat& vertex_map,
-                                                      const cv::Mat& id_image, int id) const {
+                                                      const cv::Mat& id_image, int id, int down_rate) const {
   Pointcloud submap_points;
-  for (int v = 0; v < id_image.rows; v++) {
-    for (int u = 0; u < id_image.cols; u++) {
+  for (int v = 0; v < id_image.rows; v+=down_rate ) {
+    for (int u = 0; u < id_image.cols; u+=down_rate) {
       // id == -1 means we want to use the whole point cloud 
       if (id_image.at<int>(v, u) == id || id == -1) { 
         cv::Vec3f vertex = vertex_map.at<cv::Vec3f>(v, u);
@@ -493,10 +495,10 @@ Pointcloud RaycastIntegrator::extractSubmapPointCloud(const cv::Mat& vertex_map,
 }
 
 Colors RaycastIntegrator::extractSubmapColors(const cv::Mat& color_image,
-                                              const cv::Mat& id_image, int id) const {
+                                              const cv::Mat& id_image, int id, int down_rate) const {
   Colors submap_colors;
-  for (int v = 0; v < id_image.rows; v++) {
-    for (int u = 0; u < id_image.cols; u++) {
+  for (int v = 0; v < id_image.rows; v+=down_rate) {
+    for (int u = 0; u < id_image.cols; u+=down_rate) {
       // id == -1 means we want to use the whole point cloud 
       if (id_image.at<int>(v, u) == id || id == -1) {
         cv::Vec3b color = color_image.at<cv::Vec3b>(v, u); // BGR
@@ -509,10 +511,10 @@ Colors RaycastIntegrator::extractSubmapColors(const cv::Mat& color_image,
 }
 
 Pointcloud RaycastIntegrator::extractSubmapNormals(const cv::Mat& normal_image,
-                                                  const cv::Mat& id_image, int id) const {
+                                                  const cv::Mat& id_image, int id, int down_rate) const {
   Pointcloud submap_normals;
-  for (int v = 0; v < id_image.rows; v++) {
-    for (int u = 0; u < id_image.cols; u++) {
+  for (int v = 0; v < id_image.rows; v+=down_rate) {
+    for (int u = 0; u < id_image.cols; u+=down_rate) {
       // id == -1 means we want to use the whole point cloud 
       if (id_image.at<int>(v, u) == id || id == -1) {
         cv::Vec3f vertex = normal_image.at<cv::Vec3f>(v, u);

@@ -6,7 +6,7 @@
   <arg name="visualize" default="true"/> 
   
   <!-- Use ROS Bag -->
-  <arg name="bag_speed" default="0.5"/> 
+  <arg name="bag_speed" default="1.0"/> 
 
   <!-- Sequence No. -->
   <arg name='data_seq' default='01'/>
@@ -17,7 +17,7 @@
   02: 100 m block of the mai_city_block model, data recorded with a virtual Velodyne-like LiDAR with 320 beams. -->
 
   <!-- Mai City Dataset args-->
-  <arg name="data_path_maicity" default="/media/yuepan/SeagateNew/1_data/mai_city/bags/$(arg data_seq).bag"/> 
+  <arg name="data_path_maicity" default="/media/yuepan/DATA/1_data/maicity/bags/$(arg data_seq).bag"/> 
 
   <!-- Mapper -->
   <arg name="config" default="maicity_mono"/> <!-- maicity_mono -->

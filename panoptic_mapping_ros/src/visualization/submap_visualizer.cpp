@@ -300,9 +300,13 @@ std::vector<voxblox_msgs::MultiMesh> SubmapVisualizer::generateMeshMsgs(
 
   // Timer recon_mesh("visualization/mesh/recon");
   // Process all submaps based on their visualization info. 
-  // NOTE(py): already multi-thread inside the updateMesh function for each block
+  // NOTE(py): already multi-thread inside the updateMesh function for each block (still super time consuming)
   for (Submap& submap : *submaps) {
     if (submap.getLabel() == PanopticLabel::kFreeSpace) { // skip freespace submap, we do not reconstruct it
+      continue;
+    }
+
+    if (!submap.isActive()) { // skip the inactive submaps // ADD(py)
       continue;
     }
 
@@ -863,8 +867,10 @@ void SubmapVisualizer::setSubmapVisColor(const Submap& submap,
         }
         break;
       }
-      case ColorMode::kSubmaps: {
+      case ColorMode::kSubmaps: {        
         info->color = id_color_map_.colorLookup(info->id);
+        if (info->id == 1)  // Only for the BUP dataset
+          info->color = Color(200, 200, 200); // Gray
         break;
       }
       case ColorMode::kClasses: {
@@ -927,7 +933,7 @@ void SubmapVisualizer::setSubmapVisColor(const Submap& submap,
           if (submap.isActive()) {
             info->alpha = 1.f;
           } else {
-            info->alpha = 0.2f;
+            info->alpha = 0.3f;
           }
           info->republish_everything = true;
           info->was_active = submap.isActive();
@@ -937,7 +943,7 @@ void SubmapVisualizer::setSubmapVisColor(const Submap& submap,
       case VisualizationMode::kInactive: {
         if (info->was_active != submap.isActive() || info->change_color) {
           if (submap.isActive()) {
-            info->alpha = 0.2f;
+            info->alpha = 0.3f;
           } else {
             info->alpha = 1.f;
           }
@@ -954,7 +960,7 @@ void SubmapVisualizer::setSubmapVisColor(const Submap& submap,
           if (is_persistent) {
             info->alpha = 1.0f;
           } else {
-            info->alpha = 0.2f;
+            info->alpha = 0.3f;
           }
           info->republish_everything = true;
           info->was_active = is_persistent;

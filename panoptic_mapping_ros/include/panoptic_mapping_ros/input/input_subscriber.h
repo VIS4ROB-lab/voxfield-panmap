@@ -88,7 +88,7 @@ class InputSubscriber : public InputSubscriberBase {
     // Store the input message data in the queue.
     const ros::Time stamp = getTimeStampFromMsg(msg);
     InputSynchronizerData* data;
-    if (parent_->getDataInQueue(stamp, &data)) {
+    if (parent_->getDataInQueue(stamp, &data)) { // find a match in the data queue
       extraction_function_(msg, data);
       parent_->checkDataIsReady(data);
     }

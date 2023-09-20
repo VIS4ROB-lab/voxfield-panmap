@@ -42,6 +42,9 @@ class PanopticMapper {
   struct Config : public config_utilities::Config<Config> {
     int verbosity = 2;
 
+    bool output_data = false;
+    std::string output_base = "~";
+
     // Frame name used for the global frame (often mission, world, or odom).
     std::string global_frame_name = "mission"; // "world"
 
@@ -64,7 +67,7 @@ class PanopticMapper {
     int ros_spinner_threads = std::thread::hardware_concurrency();
 
     // Frequency in seconds in which the input queue is queried.
-    float check_input_interval = 0.01f;
+    float check_input_interval = 0.001f;
 
     // If true loaded submaps change states are set to unknown, otherwise to
     // persistent.
@@ -89,7 +92,7 @@ class PanopticMapper {
     bool indicate_default_values = true;
 
     // import the input data from rosbag or not.
-    bool input_from_bag = true;
+    bool input_point_cloud = true;
 
     // input sensor is lidar or depth camera
     bool use_lidar = true;
@@ -102,6 +105,12 @@ class PanopticMapper {
 
     // filter moving objects or not
     bool filter_moving_objects = false;
+
+    // filter the depth image input or not
+    bool filter_depth_image = false;
+
+    // If apply depth erosion, the size (radius) in pixel
+    int filter_depth_erosion_size = 3;
 
     // assign different color to different instance for foreground objects 
     bool use_panoptic_color = true;
@@ -128,7 +137,7 @@ class PanopticMapper {
 
   void dataLoggingCallback(const ros::TimerEvent&);
   void printTimingsCallback(const ros::TimerEvent&);
-  void inputCallback(const ros::TimerEvent&);
+  void inputRGBDCallback(const ros::TimerEvent&);
   void updateFreeEsdfCallback(const ros::TimerEvent&);
 
   // Services.
@@ -141,19 +150,25 @@ class PanopticMapper {
   bool saveMeshCallback(
       panoptic_mapping_msgs::SaveLoadMap::Request& request,     // NOLINT
       panoptic_mapping_msgs::SaveLoadMap::Response& response);  // NOLINT
+  bool saveMergedMeshCallback(
+      panoptic_mapping_msgs::SaveLoadMap::Request& request,     // NOLINT
+      panoptic_mapping_msgs::SaveLoadMap::Response& response);  // NOLINT
   bool saveFreeEsdfCallback(
       panoptic_mapping_msgs::SaveLoadMap::Request& request,     // NOLINT
       panoptic_mapping_msgs::SaveLoadMap::Response& response);  // NOLINT
   bool setVisualizationModeCallback(
       panoptic_mapping_msgs::SetVisualizationMode::Request& request,    // NOLINT
       panoptic_mapping_msgs::SetVisualizationMode::Response& response); // NOLINT
-      
+  bool saveSceneGraphCallback(
+      panoptic_mapping_msgs::SaveLoadMap::Request& request,     // NOLINT
+      panoptic_mapping_msgs::SaveLoadMap::Response& response);  // NOLINT
+
   bool printTimingsCallback(std_srvs::Empty::Request& request,      // NOLINT
                             std_srvs::Empty::Response& response);   // NOLINT
   bool finishMappingCallback(std_srvs::Empty::Request& request,     // NOLINT
                              std_srvs::Empty::Response& response);  // NOLINT
 
-  void insertPointcloud(const sensor_msgs::PointCloud2::Ptr& pointcloud);
+  void inputPointCloud(const sensor_msgs::PointCloud2::Ptr& pointcloud);
 
   // void integratePointcloud(const Transformation& T_G_C,
   //                          const Pointcloud& ptcloud_C, const Colors& colors,
@@ -224,7 +239,7 @@ class PanopticMapper {
   // Setup.
   void setupMembers();
   void setupCollectionDependentMembers();
-  void setupRos();
+  // void setupRos();
 
  private:
   // Node handles.
@@ -243,6 +258,8 @@ class PanopticMapper {
   ros::ServiceServer print_timings_srv_;
   ros::ServiceServer finish_mapping_srv_;
   ros::ServiceServer save_mesh_srv_;
+  ros::ServiceServer save_merged_mesh_srv_;
+  ros::ServiceServer save_scene_graph_srv_;
   ros::ServiceServer save_free_esdf_srv_;
   ros::ServiceServer evaluate_map_srv_;
   ros::Timer visualization_timer_;
@@ -272,7 +289,7 @@ class PanopticMapper {
 
   // Tools.
   std::shared_ptr<Globals> globals_;
-  std::unique_ptr<InputSynchronizer> input_synchronizer_;
+  std::unique_ptr<InputSynchronizer> input_synchronizer_; // RGBD input synchronizer
   std::unique_ptr<DataWriterBase> data_logger_;
   std::shared_ptr<PlanningInterface> planning_interface_;
   std::shared_ptr<Transformer> transformer_;

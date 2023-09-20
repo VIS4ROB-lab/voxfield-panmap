@@ -72,7 +72,7 @@ MeshIntegrator::MeshIntegrator(const MeshIntegrator::Config& config,
       0, 0, 1, 1, 1, 1;
 }
 
-// already multi-thread
+// already multi-thread for each submap
 void MeshIntegrator::generateMesh(bool only_mesh_updated_blocks,
                                   bool clear_updated_flag,
                                   bool use_class_data) {
@@ -129,11 +129,16 @@ bool MeshIntegrator::updateMeshForBlock(
     const voxblox::BlockIndex& block_index) {
   voxblox::Mesh::Ptr mesh = mesh_layer_->getMeshPtrByIndex(block_index);
   mesh->clear();
+
+  // LOG(INFO) << "Trying to mesh TSDF block at index: ["
+  //                << block_index(0) << " , " << block_index(1) << " , " << block_index(2) << " ].";
+
   // This block should already exist, otherwise it makes no sense to update
   // the mesh for it. ;)
+  // TODO: may have some problem here, for this warning message 
   if (!tsdf_layer_->hasBlock(block_index)) {
-    LOG(WARNING) << "Trying to mesh a non-existent TSDF block at index: "
-                 << block_index.transpose() << ", skipping block.";
+    LOG(WARNING) << "Trying to mesh a non-existent TSDF block at index: ["
+                 << block_index(0) << " , " << block_index(1) << " , " << block_index(2) << " ] , skipping block.";
     return false;
   }
   const TsdfBlock& tsdf_block = tsdf_layer_->getBlockByIndex(block_index);
@@ -142,9 +147,9 @@ bool MeshIntegrator::updateMeshForBlock(
   ClassBlock::ConstPtr class_block;
   if (use_class_layer_) {
     class_block = class_layer_->getBlockConstPtrByIndex(block_index);
-    if (!class_block) {
-      LOG(WARNING) << "Trying to mesh a non-existent class block at index: "
-                   << block_index.transpose() << ", skipping block.";
+    if (!class_block) {      
+      LOG(WARNING) << "Trying to mesh a non-existent class block at index: ["
+                 << block_index(0) << " , " << block_index(1) << " , " << block_index(2) << " ] , skipping block.";
       return false;
     }
   }

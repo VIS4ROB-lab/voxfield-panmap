@@ -1,28 +1,34 @@
 <launch>
-
 <!-- ============ Arguments ============ -->
   <!-- General -->
   <arg name="namespace" default="data"/> 
   <arg name="visualize" default="true"/> 
   
   <!-- Use ROS Bag -->
-  <arg name="bag_speed" default="0.5"/> 
+  <arg name="bag_speed" default="0.3"/> 
 
   <!-- Sequence No. -->
   <arg name='data_seq' default='02'/>
 
   <!-- Download the dataset here: https://ori-drs.github.io/newer-college-dataset/ -->
   <!-- Newer College Dataset args--> 
-  <arg name="data_path_college" default="/media/yuepan/SeagateNew/1_data/NewerCollege/2020-ouster-os1-64-realsense/long_experiments/2020_long_filtered_$(arg data_seq).bag"/> 
+  <!-- rooster_2020-03-10-11-36-51_0
+  rooster_2020-03-10-11-39-38_1
+  rooster_2020-03-10-11-42-25_2
+  rooster_2020-03-10-11-45-12_3 -->
+
+  <arg name="data_path_college" default="/media/yuepan/DATA/1_data/newer_college/02/rosbag/rooster_2020-03-10-11-39-38_1.bag"/> 
 
   <!-- Mapper -->
   <arg name="config" default="college_mono"/> 
   <arg name="shutdown_when_finished" default="false"/> 
 
-
-<!-- ============ Run ============ -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="os1_stuff" args="0 0 0 0 0 1 0 os1_sensor os1_lidar 100" /> -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="odom_stuff" args="0 0 0 0 0 1 0 odom world 100" />  -->
   <!-- <include file="$(find lidar_undistortion)/launch/os1_undistortion.launch" /> -->
 
+
+<!-- ============ Run ============ -->
   <node name="player" pkg="rosbag" type="play" output="screen" args="-r $(arg bag_speed) $(arg data_path_college)"/>
   
   <node name="panoptic_mapper" pkg="panoptic_mapping_ros" type="panoptic_mapper_node" output="screen" >
@@ -32,6 +38,8 @@
     
     <!-- Input -->
     <remap from="pointcloud" to="/os1_cloud_node/points" />
+    <!-- <remap from="pointcloud" to="/lidar_undistortion/pointcloud_corrected"/>  -->
+    <!-- Figure it out!!! -->
   </node>  
   
 

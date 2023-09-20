@@ -123,7 +123,8 @@ class InputSynchronizer : public InputSynchronizerBase {
   bool lookupTransform(const ros::Time& timestamp,
                        const std::string& base_frame,
                        const std::string& child_frame,
-                       Transformation* transformation) const;
+                       Transformation* transformation,
+                       bool use_body_frame = true) const;
 
  private:
   template <typename T>
@@ -151,6 +152,14 @@ class InputSynchronizer : public InputSynchronizerBase {
   ros::Time oldest_time_ = ros::Time(0);
   std::string used_sensor_frame_name_;
   std::mutex data_mutex_;
+
+  /**
+   * B is the body frame of the robot, C is the camera/sensor frame creating
+   * the pointclouds, and D is the 'dynamic' frame; i.e., incoming messages
+   * are assumed to be T_G_D.
+   */
+  Transformation T_B_C_;
+  Transformation T_B_D_;
 };
 
 }  // namespace panoptic_mapping

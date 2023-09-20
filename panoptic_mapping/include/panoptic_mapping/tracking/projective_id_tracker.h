@@ -62,6 +62,8 @@ class ProjectiveIDTracker : public IDTrackerBase {
 
     bool use_lidar = true;
 
+    bool rotate_image = false; // rotate the image by 90 deg clockwise for visualization or not
+
     // Renderer settings. The renderer is only used for visualization purposes.
     MapRenderer::Config renderer;
 

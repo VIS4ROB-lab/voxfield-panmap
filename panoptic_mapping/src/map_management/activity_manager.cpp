@@ -46,7 +46,9 @@ void ActivityManager::processSubmaps(SubmapCollection* submaps) {
 
     // Check tracking for active submaps.
     // if the active submap is not not detected for Y consecutive frames, deactivate the active submap
-    checkMissedDetections(&submap);
+    if(checkMissedDetections(&submap))
+      submaps->deactivated_submap_ids.push_back(submap.getID());
+
   }
 
   timer.Stop();
@@ -88,12 +90,12 @@ bool ActivityManager::checkRequiredRedetection(Submap* submap) {
   return false;
 }
 
-void ActivityManager::checkMissedDetections(Submap* submap) {
+bool ActivityManager::checkMissedDetections(Submap* submap) {
   // Check whether a submap was not detected for X consecutive frames.
   // If the submap is not detected for X consecutive frames, the submap 
   // would become an inactive submap
   if (config_.deactivate_after_missed_detections <= 0) {
-    return;
+    return false;
   }
   if (submap->wasTracked()) {
     // Was tracked so reset the counter.
@@ -111,11 +113,14 @@ void ActivityManager::checkMissedDetections(Submap* submap) {
     it->second--;
     if (it->second <= 0) {
       submap->finishActivePeriod(config_.update_after_deactivation); // deactivate
+        
       if (config_.verbosity > 3) {
         ROS_INFO("Deactivate submap %d (%s)", submap->getID(), submap->getName().c_str());
       }
+      return true; // the submap is deactivated
     }
   }
+  return false;
 }
 
 }  // namespace panoptic_mapping

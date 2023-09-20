@@ -14,8 +14,6 @@
 
 #include "panoptic_mapping/SubmapCollection.pb.h"
 
-namespace fs = boost::filesystem;
-
 namespace panoptic_mapping {
 
 Submap* SubmapCollection::createSubmap(const Submap::Config& config) {
@@ -215,7 +213,7 @@ std::string SubmapCollection::checkMapFileExtension(const std::string& file) {
 bool SubmapCollection::saveMeshToFile(const std::string& folder_path) const {
   CHECK(!folder_path.empty());
 
-  if (!fs::exists(folder_path.c_str())) {
+  if (!boost::filesystem::exists(folder_path.c_str())) {
     if(!boost::filesystem::create_directory(folder_path.c_str()))
       return false;
   }

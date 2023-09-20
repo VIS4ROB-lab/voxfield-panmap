@@ -31,11 +31,14 @@ class Camera {
     float fx = 320.f;  // Focal lengths.
     float fy = 320.f;
 
+    float depth_unit = 1.f; // scale for the depth, for real-sense camera, the value is 1000.f
+
     // Maximum range (ray-length) in meters.
     float max_range = 5.f;
 
     // Minimum range (ray-length) in meters.
     float min_range = 0.1f;
+
 
     // Max bearable depth difference between 
     // two adjacent pixels for a valid normal estimation

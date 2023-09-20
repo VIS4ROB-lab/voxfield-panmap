@@ -356,6 +356,15 @@ void Submap::updateMesh(bool only_updated_blocks, bool use_class_layer) {
                                  has_class_layer_ && use_class_layer);
 }
 
+void Submap::saveMesh(std::string folder_path) {
+  std::string id_pad;
+  std::ostringstream oss;
+	oss << std::setfill('0') << std::setw(5) << getID() << "_" << getName() << ".ply";
+  std::string file_path = folder_path + "/" + oss.str();
+  voxblox::outputMeshLayerAsPly(file_path, getMeshLayer());                                  
+}  
+
+
 void Submap::updateOccFromTsdf(bool clear_updated_flag_occ, bool in_batch) const {
   occ_integrator_->updateFromTsdfLayer(clear_updated_flag_occ, in_batch);
 }

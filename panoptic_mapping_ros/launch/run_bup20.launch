@@ -1,0 +1,46 @@
+<launch>
+  <param name="use_sim_time" value="true" />
+<!-- ============ Arguments ============ -->
+  <!-- General -->
+  <arg name="namespace" default="data"/> 
+  <arg name="visualize" default="true"/> 
+
+  <!-- Use ROS Bag -->
+  <arg name="bag_speed" default="0.3"/>  <!-- 1.0 means 15Hz here -->
+  
+  <!-- Robot model path -->
+  <arg name="robot_mesh_file" default="$(find panoptic_mapping_ros)/config/model/camera.dae"/> 
+
+  <!-- BUP Dataset args -->
+  <!-- <arg name="data_path" default="/media/yuepan/DATA/1_data/CKA/CKA_sweet_pepper/BUP20/CKA_sweet_pepper_2020_summer/rosbag/20200924_icpodom_row4_part.bag"/> -->
+  <arg name="data_path" default="/home/yuepan/temp_rosbag/20200924_icpodom_row4_part.bag"/> 
+
+  <!-- Mapper -->
+  <arg name="config" default="bup_panmap"/> <!-- bup_panmap (the multi-resolution mapping), bup_mono -->
+
+
+<!-- ============ Run ============ -->
+  <!-- Play data -->
+  <!-- <arg name="wait" default="true" if="$(arg load_map)"/>
+  <include file="$(find panoptic_mapping_utils)/launch/play_bup_dataset.launch" pass_all_args="true"/> -->
+ 
+  <!-- use a rosbag instead -->
+  <node name="player" pkg="rosbag" type="play" output="screen" args="--clock -r $(arg bag_speed) $(arg data_path)"/>
+  
+  <!-- Mapper -->
+  <node name="panoptic_mapper" pkg="panoptic_mapping_ros" type="panoptic_mapper_node" output="screen" >
+
+    <!-- Config -->
+    <rosparam file="$(find panoptic_mapping_ros)/config/mapper/$(arg config).yaml"/>
+    <rosparam file="$(find panoptic_mapping_ros)/config/calib/bup_calib.yaml"/>
+    <param name="robot_mesh_file" value="$(arg robot_mesh_file)"/>
+    <!-- Input -->
+    <remap from="color_image_in" to="$(arg namespace)/color_image"/>
+    <remap from="depth_image_in" to="$(arg namespace)/depth_image"/>
+    <remap from="segmentation_image_in" to="$(arg namespace)/segmentation_image"/>
+  </node>  
+  
+  <!-- RVIZ Visualization-->
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find panoptic_mapping_ros)/config/rviz/vis_bup.rviz" output="screen" if="$(arg visualize)"/>
+
+</launch>

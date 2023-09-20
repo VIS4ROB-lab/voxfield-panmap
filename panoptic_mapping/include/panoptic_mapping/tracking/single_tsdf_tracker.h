@@ -32,6 +32,8 @@ class SingleTSDFTracker : public IDTrackerBase {
     bool use_detectron = false;
     bool use_instance_classification = false;
 
+    bool rotate_image = false; // rotate the image by 90 deg clockwise for visualization or not
+
     MapRenderer::Config renderer;
 
     Config() { setConfigName("SingleTSDFTracker"); }

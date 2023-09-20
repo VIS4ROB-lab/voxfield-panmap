@@ -14,14 +14,15 @@
   <arg name="bag_speed" default="0.5"/> 
 
   <!-- Sequence No. -->
-  <arg name='data_seq' default='07'/>
+  <arg name='data_seq' default='08'/>
 
   <!-- Panoptic prediction method: select from gt, rangenet, etc. -->
-  <arg name='pre_method' default='gt'/> 
+  <arg name='pre_method' default='rangenet'/> 
 
   <!-- Semantic KITTI Dataset args-->
   <!-- Download the dataset from: http://www.semantic-kitti.org/ -->
-  <arg name="data_path_kitti" default="/media/yuepan/SeagateNew/1_data/kitti/semantickitti_sequence$(arg data_seq)_$(arg pre_method).bag"/>   
+  <!-- <arg name="data_path_kitti" default="/media/yuepan/SeagateNew/1_data/kitti/semantickitti_sequence$(arg data_seq)_$(arg pre_method).bag"/>    -->
+  <arg name="data_path_kitti" default="/media/yuepan/DATA/1_data/kitti/rosbag/semantickitti_sequence$(arg data_seq)_$(arg pre_method).bag"/>
 
   <!-- Mapper -->
   <arg name="config" default="kitti_panmap"/> <!-- kitti_panmap (the multi-resolution mapping), kitti_mono --> 
